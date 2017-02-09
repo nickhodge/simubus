@@ -1,6 +1,13 @@
-# simubus
-Simulate Bus Traffic
+# simubus : Simulate Bus Traffic
 
-Simulate Bus Traffic.
+A visual simulator for Buses in a multi-lane traffic flow.
 
-Visually, using p5 (processing.js) and retain statistics
+## The code 
+
+TypeScript 2.1.x
+
+Browserified manually with require.js
+
+Visual display using p5 (HTML5 Canvas)
+
+Databinding with KnockoutJS

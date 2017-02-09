@@ -1,0 +1,21 @@
+{
+     "compileOnSave": true,
+     "compilerOptions": {
+        "target": "es5",
+        "module": "amd",
+        "moduleResolution": "node",
+        "allowJs": true,
+        "sourceMap": true,
+        "removeComments": true,
+        "rootDir": "./",
+        "rootDirs": [
+            "./libs"
+        ],
+        "typeRoots": [
+            "./typings","./node_modules/@types"
+        ]
+    },
+    "exclude": [
+        "./libs","./node_modules"
+    ]
+}

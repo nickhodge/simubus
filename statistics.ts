@@ -15,6 +15,7 @@ export class SimStatistics implements Interfaces.ISimStatistics {
     vehicles_finished : KnockoutObservable<number>;
     vehicles_finished_distance_M : KnockoutObservable<number>;
     vehicles_finished_time_S : KnockoutObservable<number>;
+    vehicles_finish_pH : KnockoutObservable<number>;
     
     constructor(s?:any) {
         this.vehicles_in_queue = ko.observable(0);
@@ -27,15 +28,11 @@ export class SimStatistics implements Interfaces.ISimStatistics {
         this.vehicles_average_Kmph = ko.computed(function() {
             if (this.vehicles_finished_time_S() === 0) {return (0);} else { 
             return (this.vehicles_finished_distance_M() / 1000 )/ (this.vehicles_finished_time_S() / 60 / 60);
+        }}, this);
+        this.vehicles_finish_pH = ko.computed(function() {
+            if (this.absoluteTime_S() === 0) {return (0);} else { 
+            return (this.vehicles_finished() )/ (this.absoluteTime_S() / 60 / 60);
             }}, this);
-    }
-
-    update_queue_add() : void {
-        this.vehicles_in_queue(this.vehicles_in_queue() + 1);
-    }
-
-     update_queue_delete() : void {
-        this.vehicles_in_queue(this.vehicles_in_queue() - 1);
     }
 
     update_vehicle_finished(d: number, s : number) : void {

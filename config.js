@@ -84,9 +84,9 @@ define(["require", "exports"], function (require, exports) {
             this.frameRate_Ps = 30;
             this.simFrameRate_Ps = 1 / this.frameRate_Ps;
             this.simSpeed = 1.0;
-            this.stoppingDistance_S = 1.6;
-            this.minimumDistance_M = 3;
-            this.fromStopGapRatio = 0.4;
+            this.stoppingDistance_S = 1.4;
+            this.minimumDistance_M = 2;
+            this.fromStopGapRatio = 0.5;
             this.braking_MpS = 4;
         }
         SimConfig.prototype.KmphPerTick = function (kmph) {

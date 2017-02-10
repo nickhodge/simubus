@@ -109,9 +109,9 @@ export class SimConfig implements Interfaces.ISimConfig {
         this.simFrameRate_Ps = 1 / this.frameRate_Ps; // simulation running at framerate per second
         this.simSpeed = 1.0; // factor speed in framerate (1 == same as frameRate_Ps)
 
-        this.stoppingDistance_S = 1.6; // stopping distance, in seconds between moving vehicles
-        this.minimumDistance_M = 3; // minimum distance, m, between stationary vehicles
-        this.fromStopGapRatio = 0.4; // ratio of length of vehicle ahead before start from zero
+        this.stoppingDistance_S = 1.4; // stopping distance, in seconds between moving vehicles
+        this.minimumDistance_M = 2; // minimum distance, m, between stationary vehicles
+        this.fromStopGapRatio = 0.5; // ratio of length of vehicle ahead before start from zero
         this.braking_MpS = 4; // http://nacto.org/docs/usdg/vehicle_stopping_distance_and_time_upenn.pdf
     }
 

@@ -19,8 +19,7 @@ export interface ISimStatistics {
   bline_pause_time_S :KnockoutObservable<number>;
   buses_in_queue : KnockoutObservable<number>;
   absoluteTime_S: KnockoutObservable<number>;
-  update_queue_add() : void;
-  update_queue_delete() : void;
+  vehicles_finish_pH : KnockoutObservable<number>;
   update_vehicle_finished(d: number, s : number) : void;
 }
 

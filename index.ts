@@ -36,9 +36,9 @@ var simubus = function (p: any) {
 
     //laneconfigs[0] = new Simubus.LaneSimConfig(0,0,0,0,config);
 
-    laneconfigs.add(new Config.LaneSimConfig(200, 50, 20, 400, config));
-    laneconfigs.add(new Config.LaneSimConfig(50, 10, 0, 2400, config));
-    laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 2400, config));
+    laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 200, config));
+    laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 1300, config));
+    laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 1300, config));
     var i = 0;
 
     laneconfigs.forEach(c => {

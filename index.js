@@ -9,9 +9,9 @@ define(["require", "exports", "typescript-collections", "./config", "./infrastru
         p.setup = function () {
             p.frameRate(config.frameRate_Ps);
             var i = 0;
-            laneconfigs.add(new Config.LaneSimConfig(200, 50, 20, 400, config));
-            laneconfigs.add(new Config.LaneSimConfig(50, 10, 0, 2400, config));
-            laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 2400, config));
+            laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 200, config));
+            laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 1300, config));
+            laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 1300, config));
             var i = 0;
             laneconfigs.forEach(function (c) {
                 i++;

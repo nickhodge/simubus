@@ -101,7 +101,7 @@ export class BaseVehicle implements Interfaces.IVehicle {
     p.fill(this.fillcolour_rgb);
     p.stroke(this.strokecolour_rgb);
     if (this.currentSpeed_Kmph < this.maxSpeed_Kmph) {
-      p.strokeWeight(3); // fatter == currently under maximum speed
+      p.strokeWeight(3); // fatter == currently below maximum speed
     } else {
       p.strokeWeight(1);
     }
@@ -132,7 +132,7 @@ export class BLineBus extends BaseVehicle {
 
 export class Car extends BaseVehicle {
   constructor(_x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
-    super("Car 4.9m", 4.9, 2.75, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
+    super("Car 4.9m", 4.9, 2.5, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
     this.acceleration_MpS += (0.5 - Math.random()) * 2;
     this.maxSpeed_Kmph += (0.5 - Math.random()) * 5;
   }

@@ -112,11 +112,14 @@ export class Lane implements Interfaces.ILane {
       this.queued_vehicles.remove(nextinqueue);
       nextinqueue.currentState = Interfaces.VehicleMovementState.accelerating;
     } else {
+
+      // otherwise, normal de-queue event 
+
       var backmostinlane = this.vehicles.last();
       var nextinqueue = this.queued_vehicles.first();
 
       if (backmostinlane !== undefined && nextinqueue !== undefined) {
-        if (backmostinlane.x_M > this.config.minimumDistance_M) {
+        if (backmostinlane.x_M > this.config.minimumDistance_M) { // release one from the queue as there is enough space ahead
         this.vehicles.add(nextinqueue);
         this.queued_vehicles.remove(nextinqueue);
         }

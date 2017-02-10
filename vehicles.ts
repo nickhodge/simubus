@@ -52,11 +52,12 @@ export class BaseVehicle implements Interfaces.IVehicle {
   }
 
   queued_update() {
-    this.deltaT_s += this.config.simFrameRate_Ps; 
+    this.deltaT_s += this.config.simFrameRate_Ps;
     this.stoppedTime_s += this.config.simFrameRate_Ps;
- }
+  }
 
   update() {
+    // based on the current state, and intent
     switch (this.currentState) {
       case Interfaces.VehicleMovementState.decelerating:
         this.strokecolour_rgb = "#f00";
@@ -66,7 +67,7 @@ export class BaseVehicle implements Interfaces.IVehicle {
           this.currentSpeed_Kmph = 0;
         }
         this.x_M = this.x_M + (this.config.KmphPerTick(this.currentSpeed_Kmph));
-         break;
+        break;
       case Interfaces.VehicleMovementState.stopped:
         this.strokecolour_rgb = this.fillcolour_rgb;
         this.currentSpeed_Kmph = 0;
@@ -77,27 +78,23 @@ export class BaseVehicle implements Interfaces.IVehicle {
         this.strokecolour_rgb = "#0f0";
         this.currentSpeed_Kmph += this.config.MpsToKmphTick(this.acceleration_MpS);
         if (this.currentSpeed_Kmph > this.maxSpeed_Kmph) {
-          this.strokecolour_rgb = "#040";
+          this.strokecolour_rgb = "#070";
           this.currentSpeed_Kmph = this.maxSpeed_Kmph;
           this.currentState = Interfaces.VehicleMovementState.cruising;
         }
         this.x_M = this.x_M + (this.config.KmphPerTick(this.currentSpeed_Kmph));
-         break;
+        break;
       case Interfaces.VehicleMovementState.cruising:
         this.strokecolour_rgb = "#070";
         this.x_M = this.x_M + (this.config.KmphPerTick(this.currentSpeed_Kmph));
         break;
-      case Interfaces.VehicleMovementState.waiting:
-        this.strokecolour_rgb = this.fillcolour_rgb;
-        this.x_M = this.x_M + (this.config.KmphPerTick(this.currentSpeed_Kmph));
-       break;
       default:
     }
     this.deltaD_M += (this.config.KmphPerTick(this.currentSpeed_Kmph));
     this.deltaT_s += this.config.simFrameRate_Ps;
- }
+  }
 
-  draw(p : any) {
+  draw(p: any) {
     p.fill(this.fillcolour_rgb);
     p.stroke(this.strokecolour_rgb);
     if (this.currentSpeed_Kmph < this.maxSpeed_Kmph) {
@@ -105,7 +102,7 @@ export class BaseVehicle implements Interfaces.IVehicle {
     } else {
       p.strokeWeight(1);
     }
-   p.rect(this.x_M * this.config.simScale_PpM, this.y_M * this.config.simScale_PpM, this.pixelLength, this.pixelWidth);
+    p.rect(this.x_M * this.config.simScale_PpM, this.y_M * this.config.simScale_PpM, this.pixelLength, this.pixelWidth);
   }
 }
 
@@ -134,6 +131,6 @@ export class Car extends BaseVehicle {
   constructor(_x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super("Car 4.9m", 4.9, 2.5, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
     this.acceleration_MpS += (0.5 - Math.random()) * 2;
-    this.maxSpeed_Kmph += (0.5 - Math.random()) * 5;
+    this.maxSpeed_Kmph += (0.5 - Math.random()) * 8;
   }
 }

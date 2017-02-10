@@ -10,8 +10,8 @@ import * as Interfaces from './interfaces';
 export class LaneStatistics implements Interfaces.ILaneStatistics {
   bline_pause_time: number;
   queued_vehicles: number;
-  queued_buses:number;
-  constructor(s?:any) {
+  queued_buses: number;
+  constructor(s?: any) {
     this.bline_pause_time = 0;
     this.queued_vehicles = 0;
     this.queued_buses = 0;
@@ -58,55 +58,56 @@ export class Lane implements Interfaces.ILane {
     this.laneconfig.start();
   }
 
-  update() : Interfaces.ILaneStatistics {
-    // first, move all vehichles along by the appropriate distance for the timescale
+  update(): Interfaces.ILaneStatistics {
+    // move all vehichles along by the appropriate distance for the timescale
+    // start from front of lane, moving backward to rear of lane
 
     var response = new LaneStatistics();
 
-    response.bline_pause_time = 0;
-
     this.queued_vehicles.forEach(qv => {
       qv.queued_update();
+    // gather count of queued buses specifically
+      if (qv instanceof Vehicles.SmallBus || qv instanceof Vehicles.LargeBus || qv instanceof Vehicles.BLineBus) {
+        response.queued_buses += 1;
+      }
     });
 
+    // each in lane
     this.vehicles.forEach(v => {
       v.update();
-      
-      if (v instanceof Vehicles.BLineBus) {
-         response.bline_pause_time += v.stoppedTime_s;
 
+      // grab bline stats for reporting
+      if (v instanceof Vehicles.BLineBus) {
+        response.bline_pause_time += v.stoppedTime_s;
       }
 
-      if (v instanceof Vehicles.SmallBus || v instanceof Vehicles.LargeBus || v instanceof Vehicles.BLineBus)
-{
-           response.queued_buses += 1;
-}
-
-      if ((v.x_M) > this.xEnd_M) { // if vehicle is past the end of this lane, delete it.
+      // if vehicle is past the end of this lane, delete it.  
+      if ((v.x_M) > this.xEnd_M) { 
         this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
         this.vehicles.remove(v);
       }
     });
-   
-    // update all the vehicle types: need to dequeue more?
+
+    // update all the vehicle types: need to enqueue more?
     if (this.laneconfig.update_smallbus()) {
       this.queued_vehicles.add(new Vehicles.SmallBus(0, this.yStart_M, 0, 50, this.config, this));
-  }
+    }
 
     if (this.laneconfig.update_largebus()) {
       this.queued_vehicles.add(new Vehicles.LargeBus(0, this.yStart_M, 0, 50, this.config, this));
-  }
+    }
 
     if (this.laneconfig.update_blinebus()) {
       this.queued_vehicles.add(new Vehicles.BLineBus(0, this.yStart_M, 0, 50, this.config, this));
-  }
+    }
 
     if (this.laneconfig.update_car()) {
       this.queued_vehicles.add(new Vehicles.Car(0, this.yStart_M, 0, 60, this.config, this));
-   }
+    }
 
-
-    if (this.vehicles.size() === 0 && this.queued_vehicles.size() > 0) { // special case for start
+    // nothing in the lane, and something in the queue - dequeue it
+    if (this.vehicles.size() === 0 && this.queued_vehicles.size() > 0) { 
+      // special case for start
       var nextinqueue = this.queued_vehicles.first();
       this.vehicles.add(nextinqueue);
       this.queued_vehicles.remove(nextinqueue);
@@ -114,14 +115,14 @@ export class Lane implements Interfaces.ILane {
     } else {
 
       // otherwise, normal de-queue event 
-
       var backmostinlane = this.vehicles.last();
       var nextinqueue = this.queued_vehicles.first();
 
       if (backmostinlane !== undefined && nextinqueue !== undefined) {
-        if (backmostinlane.x_M > this.config.minimumDistance_M) { // release one from the queue as there is enough space ahead
-        this.vehicles.add(nextinqueue);
-        this.queued_vehicles.remove(nextinqueue);
+        if (backmostinlane.x_M > this.config.minimumDistance_M) { 
+          // release one from the queue as there is enough space ahead
+          this.vehicles.add(nextinqueue);
+          this.queued_vehicles.remove(nextinqueue);
         }
       }
     }
@@ -130,19 +131,25 @@ export class Lane implements Interfaces.ILane {
       for (var i = 1; i < this.vehicles.size(); i++) {
         var ahead = this.vehicles.elementAtIndex(i - 1);
         var behind = this.vehicles.elementAtIndex(i);
+
         var distance = ahead.x_M - (behind.x_M + behind.length_M); // distance from front of one vehicle to the other
         var moving_gap = this.config.KmphToMps(behind.currentSpeed_Kmph) * this.config.stoppingDistance_S;
+
+        // this block only if the vehicle to the rear is moving
         if (behind.currentSpeed_Kmph > 0) {
-          if (distance < moving_gap) {
-            behind.currentState = Interfaces.VehicleMovementState.cruising; // change to cruise
+
+          // car ahead is too close, slow down
+          if (distance < moving_gap || distance <= this.config.minimumDistance_M) {
+            behind.currentState = Interfaces.VehicleMovementState.decelerating; // change to cruise
           }
-          if (distance <= this.config.minimumDistance_M) {
-            behind.currentState = Interfaces.VehicleMovementState.decelerating; // change to deccelerate
-          }
+
+          // car ahead stoppped, and we are getting close. stop!
           if (ahead.currentSpeed_Kmph === 0 && distance <= this.config.minimumDistance_M) {
             behind.currentState = Interfaces.VehicleMovementState.stopped; // change to stop
           }
         }
+
+        // if distance is wide enough, accelerate (and let vehicle decide to 'cruise' if at max speed)
         if (distance >= moving_gap) { // otherwise, OK to start accelerate
           behind.currentState = Interfaces.VehicleMovementState.accelerating;
         }
@@ -152,7 +159,7 @@ export class Lane implements Interfaces.ILane {
     return response;
   }
 
-  draw(p : any) {
+  draw(p: any) {
     p.stroke(255);
     p.strokeWeight(1);
     p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);

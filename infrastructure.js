@@ -32,17 +32,16 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
         Lane.prototype.update = function () {
             var _this = this;
             var response = new LaneStatistics();
-            response.bline_pause_time = 0;
             this.queued_vehicles.forEach(function (qv) {
                 qv.queued_update();
+                if (qv instanceof Vehicles.SmallBus || qv instanceof Vehicles.LargeBus || qv instanceof Vehicles.BLineBus) {
+                    response.queued_buses += 1;
+                }
             });
             this.vehicles.forEach(function (v) {
                 v.update();
                 if (v instanceof Vehicles.BLineBus) {
                     response.bline_pause_time += v.stoppedTime_s;
-                }
-                if (v instanceof Vehicles.SmallBus || v instanceof Vehicles.LargeBus || v instanceof Vehicles.BLineBus) {
-                    response.queued_buses += 1;
                 }
                 if ((v.x_M) > _this.xEnd_M) {
                     _this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
@@ -84,10 +83,7 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                     var distance = ahead.x_M - (behind.x_M + behind.length_M);
                     var moving_gap = this.config.KmphToMps(behind.currentSpeed_Kmph) * this.config.stoppingDistance_S;
                     if (behind.currentSpeed_Kmph > 0) {
-                        if (distance < moving_gap) {
-                            behind.currentState = Interfaces.VehicleMovementState.cruising;
-                        }
-                        if (distance <= this.config.minimumDistance_M) {
+                        if (distance < moving_gap || distance <= this.config.minimumDistance_M) {
                             behind.currentState = Interfaces.VehicleMovementState.decelerating;
                         }
                         if (ahead.currentSpeed_Kmph === 0 && distance <= this.config.minimumDistance_M) {

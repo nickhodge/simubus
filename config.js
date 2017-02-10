@@ -64,7 +64,7 @@ define(["require", "exports"], function (require, exports) {
                 return false;
             this.car_Trigger--;
             if (this.car_Trigger < 1) {
-                this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.9, 1.1);
+                this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.95, 1.05);
                 return true;
             }
             else {
@@ -109,6 +109,11 @@ define(["require", "exports"], function (require, exports) {
         };
         SimConfig.prototype.getRandomInRange = function (min, max) {
             return Math.random() * (max - min) + min;
+        };
+        SimConfig.prototype.secondsToHMS = function (secs) {
+            var date = new Date(null);
+            date.setSeconds(secs);
+            return date.toISOString().substr(11, 8);
         };
         return SimConfig;
     }());

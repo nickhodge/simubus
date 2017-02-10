@@ -55,6 +55,7 @@ export interface ISimConfig {
     MpsToKmphTick(mps: number): number;
     TicksToSeconds(ticks: number): number;
     getRandomInRange(min: number, max: number): number;
+    secondsToHMS(secs: number) :string;
 }
 
 export enum VehicleMovementState {

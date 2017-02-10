@@ -53,7 +53,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
                     this.strokecolour_rgb = "#0f0";
                     this.currentSpeed_Kmph += this.config.MpsToKmphTick(this.acceleration_MpS);
                     if (this.currentSpeed_Kmph > this.maxSpeed_Kmph) {
-                        this.strokecolour_rgb = "#040";
+                        this.strokecolour_rgb = "#070";
                         this.currentSpeed_Kmph = this.maxSpeed_Kmph;
                         this.currentState = Interfaces.VehicleMovementState.cruising;
                     }
@@ -61,10 +61,6 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
                     break;
                 case Interfaces.VehicleMovementState.cruising:
                     this.strokecolour_rgb = "#070";
-                    this.x_M = this.x_M + (this.config.KmphPerTick(this.currentSpeed_Kmph));
-                    break;
-                case Interfaces.VehicleMovementState.waiting:
-                    this.strokecolour_rgb = this.fillcolour_rgb;
                     this.x_M = this.x_M + (this.config.KmphPerTick(this.currentSpeed_Kmph));
                     break;
                 default:
@@ -121,7 +117,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
         function Car(_x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane) {
             var _this = _super.call(this, "Car 4.9m", 4.9, 2.5, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane) || this;
             _this.acceleration_MpS += (0.5 - Math.random()) * 2;
-            _this.maxSpeed_Kmph += (0.5 - Math.random()) * 5;
+            _this.maxSpeed_Kmph += (0.5 - Math.random()) * 8;
             return _this;
         }
         return Car;

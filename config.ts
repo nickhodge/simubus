@@ -77,7 +77,7 @@ export class LaneSimConfig implements Interfaces.ILaneSimConfig {
         if (this.car_Trigger < 0) return false;
         this.car_Trigger--;
         if (this.car_Trigger < 1) {
-            this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.9, 1.1);
+            this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.95, 1.05);
             return true; // yes, enqueue
         } else {
             return false;
@@ -137,5 +137,11 @@ export class SimConfig implements Interfaces.ISimConfig {
 
     getRandomInRange(min: number, max: number): number {
         return Math.random() * (max - min) + min;
+    }
+
+    secondsToHMS(secs: number) : string {
+        var date = new Date(null);
+        date.setSeconds(secs); 
+        return date.toISOString().substr(11, 8);
     }
 }

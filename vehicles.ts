@@ -12,7 +12,7 @@ import * as Interfaces from './interfaces';
 // .target speed
 // in source lane until target reached
 
-export class BaseVehicle implements Interfaces.IVehicle {
+export abstract class BaseVehicle implements Interfaces.IVehicle {
   description: string;
   lane: Interfaces.ILane;
   config: Interfaces.ISimConfig;
@@ -130,34 +130,34 @@ export class BaseVehicle implements Interfaces.IVehicle {
   }
 }
 
-export class AbstractBus extends BaseVehicle {
+export abstract class Bus extends BaseVehicle {
   constructor(_description: string, _vehicleLength_M: number, _acceleration_MpS: number, _x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super(_description, _vehicleLength_M, _acceleration_MpS, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
   }
 }
 
-export class SmallBus extends AbstractBus {
+export class SmallBus extends Bus {
   constructor(_x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super("Small Bus 12.5m", 12.5, 1.25, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
     this.fillcolour_rgb = "#00f";
   }
 }
 
-export class LargeBus extends AbstractBus {
+export class LargeBus extends Bus {
   constructor(_x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super("Large Articulated Bus 18m", 18, 1.0, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
     this.fillcolour_rgb = "#00f";
   }
 }
 
-export class M30Bus extends AbstractBus {
+export class M30Bus extends Bus {
   constructor(_x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super("M30 Bus 18m", 18, 1.0, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
     this.fillcolour_rgb = "#f00";
   }
 }
 
-export class BLineBus extends AbstractBus {
+export class BLineBus extends Bus {
   constructor(_x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super("BLine Bus 12.5m", 12, 1.15, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
     this.fillcolour_rgb = "#ff0";

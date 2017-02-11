@@ -38,7 +38,7 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
             });
             this.queued_vehicles.forEach(function (qv) {
                 qv.queued_update();
-                if (qv instanceof Vehicles.AbstractBus) {
+                if (qv instanceof Vehicles.Bus) {
                     response.queued_buses += 1;
                 }
                 if (qv instanceof Vehicles.BLineBus) {
@@ -52,7 +52,7 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                     _this.vehicles.remove(v);
                 }
                 _this.stops.forEach(function (s) {
-                    if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.AbstractBus) {
+                    if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.Bus) {
                         if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
                             v.stopCountdown = s.stop_timing_S;
                         }

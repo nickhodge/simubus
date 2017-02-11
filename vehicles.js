@@ -97,14 +97,14 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
         return BaseVehicle;
     }());
     exports.BaseVehicle = BaseVehicle;
-    var AbstractBus = (function (_super) {
-        __extends(AbstractBus, _super);
-        function AbstractBus(_description, _vehicleLength_M, _acceleration_MpS, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane) {
+    var Bus = (function (_super) {
+        __extends(Bus, _super);
+        function Bus(_description, _vehicleLength_M, _acceleration_MpS, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane) {
             return _super.call(this, _description, _vehicleLength_M, _acceleration_MpS, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane) || this;
         }
-        return AbstractBus;
+        return Bus;
     }(BaseVehicle));
-    exports.AbstractBus = AbstractBus;
+    exports.Bus = Bus;
     var SmallBus = (function (_super) {
         __extends(SmallBus, _super);
         function SmallBus(_x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane) {
@@ -113,7 +113,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             return _this;
         }
         return SmallBus;
-    }(AbstractBus));
+    }(Bus));
     exports.SmallBus = SmallBus;
     var LargeBus = (function (_super) {
         __extends(LargeBus, _super);
@@ -123,7 +123,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             return _this;
         }
         return LargeBus;
-    }(AbstractBus));
+    }(Bus));
     exports.LargeBus = LargeBus;
     var M30Bus = (function (_super) {
         __extends(M30Bus, _super);
@@ -133,7 +133,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             return _this;
         }
         return M30Bus;
-    }(AbstractBus));
+    }(Bus));
     exports.M30Bus = M30Bus;
     var BLineBus = (function (_super) {
         __extends(BLineBus, _super);
@@ -143,7 +143,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             return _this;
         }
         return BLineBus;
-    }(AbstractBus));
+    }(Bus));
     exports.BLineBus = BLineBus;
     var Car = (function (_super) {
         __extends(Car, _super);

@@ -7,7 +7,7 @@ import * as Collections from 'typescript-collections';
 import * as Vehicles from "./vehicles";
 import * as Interfaces from './interfaces';
 
-export class AbstractStop implements Interfaces.IStop {
+export abstract class Stop implements Interfaces.IStop {
     xStart_M: number;
     yStart_M: number;
     stopping: boolean;
@@ -41,19 +41,19 @@ export class AbstractStop implements Interfaces.IStop {
     }
 }
 
-export class BusStop extends AbstractStop {
+export class BusStop extends Stop {
     stop_timing_S: number;
     constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
         super(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config);
         this.strokecolour_rgb = "#00f";
-        this.stop_timing_S = 10;
+        this.stop_timing_S = 2;
     }
     update() {
         // nothing to update periodically
     }
 }
 
-export class TrafficStop extends AbstractStop {
+export class TrafficStop extends Stop {
     go_timing_S: number; // wait this number of seconds before "GO"
     stop_timing_S: number;
     trafficStop_Trigger: number;

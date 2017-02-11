@@ -76,7 +76,7 @@ export class Lane implements Interfaces.ILane {
       qv.queued_update();
 
       // gather count of queued buses specifically
-      if (qv instanceof Vehicles.AbstractBus) {
+      if (qv instanceof Vehicles.Bus) {
         response.queued_buses += 1;
       }
 
@@ -97,7 +97,7 @@ export class Lane implements Interfaces.ILane {
       }
 
       this.stops.forEach(s => {
-        if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.AbstractBus) {
+        if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.Bus) {
           // bus stop work
             if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
               v.stopCountdown = s.stop_timing_S;

@@ -5,8 +5,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 define(["require", "exports"], function (require, exports) {
     "use strict";
-    var AbstractStop = (function () {
-        function AbstractStop(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
+    var Stop = (function () {
+        function Stop(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
             this.config = _config;
             this.xStart_M = _xStart_M;
             this.yStart_M = _yStart_M;
@@ -15,29 +15,29 @@ define(["require", "exports"], function (require, exports) {
             this.pixelEndX = this.xStart_M * this.config.simScale_PpM;
             this.pixelEndY = _yEnd_M * this.config.simScale_PpM;
         }
-        AbstractStop.prototype.update = function () {
+        Stop.prototype.update = function () {
         };
-        AbstractStop.prototype.draw = function (p) {
+        Stop.prototype.draw = function (p) {
             p.stroke(this.strokecolour_rgb);
             p.strokeWeight(3);
             p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
             p.stroke(0);
         };
-        return AbstractStop;
+        return Stop;
     }());
-    exports.AbstractStop = AbstractStop;
+    exports.Stop = Stop;
     var BusStop = (function (_super) {
         __extends(BusStop, _super);
         function BusStop(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
             var _this = _super.call(this, _xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) || this;
             _this.strokecolour_rgb = "#00f";
-            _this.stop_timing_S = 10;
+            _this.stop_timing_S = 2;
             return _this;
         }
         BusStop.prototype.update = function () {
         };
         return BusStop;
-    }(AbstractStop));
+    }(Stop));
     exports.BusStop = BusStop;
     var TrafficStop = (function (_super) {
         __extends(TrafficStop, _super);
@@ -66,7 +66,7 @@ define(["require", "exports"], function (require, exports) {
             }
         };
         return TrafficStop;
-    }(AbstractStop));
+    }(Stop));
     exports.TrafficStop = TrafficStop;
 });
 //# sourceMappingURL=stops.js.map

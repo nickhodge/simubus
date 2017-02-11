@@ -1,8 +1,10 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     var BusStop = (function () {
-        function BusStop(xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
+        function BusStop(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
             this.config = _config;
+            this.xStart_M = _xStart_M;
+            this.yStart_M = _yStart_M;
             this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
             this.pixelStartY = _yStart_M * this.config.simScale_PpM;
             this.pixelEndX = this.xStart_M * this.config.simScale_PpM;
@@ -18,8 +20,11 @@ define(["require", "exports"], function (require, exports) {
     }());
     exports.BusStop = BusStop;
     var TrafficStop = (function () {
-        function TrafficStop(xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
+        function TrafficStop(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
             this.config = _config;
+            this.stopping = true;
+            this.xStart_M = _xStart_M;
+            this.yStart_M = _yStart_M;
             this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
             this.pixelStartY = _yStart_M * this.config.simScale_PpM;
             this.pixelEndX = this.xStart_M * this.config.simScale_PpM;

@@ -1,4 +1,4 @@
-define(["require", "exports", "typescript-collections", "./config", "./infrastructure", "./vehicles", "./statistics", "knockout", "./libs/p5"], function (require, exports, Collections, Config, Infrastructure, Vehicles, SimStatistics, ko, p5) {
+define(["require", "exports", "typescript-collections", "./config", "./infrastructure", "./vehicles", "./statistics", "./stops", "knockout", "./libs/p5"], function (require, exports, Collections, Config, Infrastructure, Vehicles, SimStatistics, Stops, ko, p5) {
     "use strict";
     var lanes = new Collections.LinkedList();
     var laneconfigs = new Collections.LinkedList();
@@ -18,6 +18,8 @@ define(["require", "exports", "typescript-collections", "./config", "./infrastru
             lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.M30Bus(0, 0, 0, 60, config, lanes.elementAtIndex(0)));
             lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
             lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
+            lanes.elementAtIndex(0).stops.add(new Stops.BusStop(40, 0, 4, 90, config));
+            lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(240, 0, 4, 60, config));
             p.createCanvas(config.pixelWidth_P, config.pixelHeight_P);
         };
         p.draw = function () {

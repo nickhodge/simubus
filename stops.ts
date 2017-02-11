@@ -13,6 +13,8 @@ import * as Interfaces from './interfaces';
 
 export class BusStop implements Interfaces.IStop {
   xStart_M: number;
+  yStart_M: number;
+  stopping: boolean;
   stopping_s: number;
   config: Interfaces.ISimConfig;
   pixelStartX: number;
@@ -20,8 +22,10 @@ export class BusStop implements Interfaces.IStop {
   pixelEndX: number;
   pixelEndY: number;
 
-  constructor(xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
+  constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
     this.config = _config;
+    this.xStart_M = _xStart_M;
+    this.yStart_M = _yStart_M;
     this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
     this.pixelStartY = _yStart_M * this.config.simScale_PpM;
     this.pixelEndX = this.xStart_M * this.config.simScale_PpM;
@@ -37,7 +41,8 @@ export class BusStop implements Interfaces.IStop {
 }
 
 export class TrafficStop implements Interfaces.IStop {
-  xStart_M: number;
+    xStart_M: number;
+  yStart_M: number;
   stopping: boolean;
   stopping_s: number;
   config: Interfaces.ISimConfig;
@@ -46,8 +51,11 @@ export class TrafficStop implements Interfaces.IStop {
   pixelEndX: number;
   pixelEndY: number;
 
-  constructor(xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
+  constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
     this.config = _config;
+    this.stopping = true;
+    this.xStart_M = _xStart_M;
+    this.yStart_M = _yStart_M;
     this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
     this.pixelStartY = _yStart_M * this.config.simScale_PpM;
     this.pixelEndX = this.xStart_M * this.config.simScale_PpM;

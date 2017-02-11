@@ -12,6 +12,7 @@ import * as Interfaces from './interfaces';
 import * as Infrastructure from './infrastructure';
 import * as Vehicles from "./vehicles";
 import * as SimStatistics from './statistics';
+import * as Stops from './stops';
 import * as ko from 'knockout';
 import * as p5 from './libs/p5';
 
@@ -34,9 +35,9 @@ var simubus = function (p: any) {
     var i = 0;
   
 
-    //laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 200, config));
-    //laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 1300, config));
-    //laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 1300, config));
+    //laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 20, 200, config));
+    //laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 0, 1300, config));
+    //laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 1300, config));
 
     laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 0, config));
     var i = 0;
@@ -50,6 +51,9 @@ var simubus = function (p: any) {
     lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
     lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
  
+    lanes.elementAtIndex(0).stops.add(new Stops.BusStop(40,0,4,90,config));
+    lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(240,0,4,60,config));
+
     p.createCanvas(config.pixelWidth_P, config.pixelHeight_P);
   };
 

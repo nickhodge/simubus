@@ -99,6 +99,8 @@ export interface IVehicle {
 
 export interface IStop {
   xStart_M: number;
+  yStart_M: number;
+  stopping: boolean;
   stopping_s: number;
   config: ISimConfig;
   draw(p : any): void;

@@ -1,14 +1,16 @@
 define(["require", "exports"], function (require, exports) {
     "use strict";
     var LaneSimConfig = (function () {
-        function LaneSimConfig(_smallbus_pH, _largebus_pH, _blinebus_pH, _car_pH, _config) {
+        function LaneSimConfig(_smallbus_pH, _largebus_pH, _m30bus_pH, _blinebus_pH, _car_pH, _config) {
             this.config = _config;
             this.smallbus_pH = _smallbus_pH;
             this.largebus_pH = _largebus_pH;
+            this.m30bus_pH = _m30bus_pH;
             this.blinebus_pH = _blinebus_pH;
             this.car_pH = _car_pH;
             this.smallbus_Trigger = -1;
             this.largebus_Trigger = -1;
+            this.m30bus_Trigger = -1;
             this.blinebus_Trigger = -1;
             this.car_Trigger = -1;
         }
@@ -17,11 +19,12 @@ define(["require", "exports"], function (require, exports) {
                 this.smallbus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.smallbus_pH;
             if (this.largebus_pH !== 0)
                 this.largebus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.largebus_pH;
+            if (this.m30bus_pH !== 0)
+                this.m30bus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.m30bus_pH;
             if (this.blinebus_pH !== 0)
                 this.blinebus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.blinebus_pH;
             if (this.car_pH !== 0)
                 this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.95, 1.05);
-            ;
         };
         LaneSimConfig.prototype.update_smallbus = function () {
             if (this.smallbus_Trigger < 0)
@@ -41,6 +44,18 @@ define(["require", "exports"], function (require, exports) {
             this.largebus_Trigger--;
             if (this.largebus_Trigger < 1) {
                 this.largebus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.largebus_pH;
+                return true;
+            }
+            else {
+                return false;
+            }
+        };
+        LaneSimConfig.prototype.update_m30bus = function () {
+            if (this.m30bus_Trigger < 0)
+                return false;
+            this.m30bus_Trigger--;
+            if (this.m30bus_Trigger < 1) {
+                this.m30bus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.m30bus_pH;
                 return true;
             }
             else {

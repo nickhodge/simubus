@@ -27,12 +27,14 @@ export interface ILaneSimConfig {
     config: ISimConfig;
     smallbus_pH: number;
     largebus_pH: number;
+    m30bus_pH: number;
     blinebus_pH: number;
     car_pH: number;
     start(): void;
     update_smallbus(): boolean;
     update_largebus(): boolean;
     update_blinebus(): boolean;
+    update_m30bus(): boolean;
     update_car(): boolean;
 }
 
@@ -95,15 +97,23 @@ export interface IVehicle {
   draw(p : any): void;
 }
 
+export interface IStop {
+  xStart_M: number;
+  stopping_s: number;
+  config: ISimConfig;
+  draw(p : any): void;
+}
+
 export interface ILane {
   config: ISimConfig;
   laneconfig: ILaneSimConfig;
   vehicles: Collections.LinkedList<IVehicle>;
   queued_vehicles: Collections.LinkedList<IVehicle>;
+  stops: Collections.LinkedList<IStop>;
   sim_statistics: ISimStatistics;
   length_M: number;
   xStart_M: number;
   xEnd_M: number;
-  update(): ILaneStatistics;
+  update(lanes : Collections.LinkedList<ILane>): ILaneStatistics;
   draw(p : any): void;
 }

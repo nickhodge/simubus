@@ -27,22 +27,23 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
             this.length_M = this.xEnd_M - this.xStart_M;
             this.vehicles = new Collections.LinkedList();
             this.queued_vehicles = new Collections.LinkedList();
+            this.stops = new Collections.LinkedList();
             this.laneconfig.start();
         }
-        Lane.prototype.update = function () {
+        Lane.prototype.update = function (lanes) {
             var _this = this;
             var response = new LaneStatistics();
             this.queued_vehicles.forEach(function (qv) {
                 qv.queued_update();
-                if (qv instanceof Vehicles.SmallBus || qv instanceof Vehicles.LargeBus || qv instanceof Vehicles.BLineBus) {
+                if (qv instanceof Vehicles.AbstractBus) {
                     response.queued_buses += 1;
+                }
+                if (qv instanceof Vehicles.BLineBus) {
+                    response.bline_pause_time += qv.stoppedTime_s;
                 }
             });
             this.vehicles.forEach(function (v) {
                 v.update();
-                if (v instanceof Vehicles.BLineBus) {
-                    response.bline_pause_time += v.stoppedTime_s;
-                }
                 if ((v.x_M) > _this.xEnd_M) {
                     _this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
                     _this.vehicles.remove(v);
@@ -53,6 +54,9 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
             }
             if (this.laneconfig.update_largebus()) {
                 this.queued_vehicles.add(new Vehicles.LargeBus(0, this.yStart_M, 0, 50, this.config, this));
+            }
+            if (this.laneconfig.update_m30bus()) {
+                this.queued_vehicles.add(new Vehicles.M30Bus(0, this.yStart_M, 0, 50, this.config, this));
             }
             if (this.laneconfig.update_blinebus()) {
                 this.queued_vehicles.add(new Vehicles.BLineBus(0, this.yStart_M, 0, 50, this.config, this));
@@ -103,6 +107,9 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
             p.strokeWeight(1);
             p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
             p.stroke(0);
+            this.stops.forEach(function (s) {
+                s.draw(p);
+            });
             this.vehicles.forEach(function (v) {
                 v.draw(p);
             });

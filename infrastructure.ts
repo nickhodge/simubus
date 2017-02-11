@@ -6,6 +6,7 @@ import * as Collections from 'typescript-collections';
 
 import * as Vehicles from "./vehicles";
 import * as Interfaces from './interfaces';
+import * as Stops from './stops';
 
 export class LaneStatistics implements Interfaces.ILaneStatistics {
   bline_pause_time: number;
@@ -18,12 +19,15 @@ export class LaneStatistics implements Interfaces.ILaneStatistics {
   }
 }
 
+
+
 export class Lane implements Interfaces.ILane {
   config: Interfaces.ISimConfig;
   laneconfig: Interfaces.ILaneSimConfig;
   sim_statistics: Interfaces.ISimStatistics;
   vehicles: Collections.LinkedList<Interfaces.IVehicle>;
   queued_vehicles: Collections.LinkedList<Interfaces.IVehicle>;
+  stops: Collections.LinkedList<Interfaces.IStop>;
   length_M: number;
   xStart_M: number;
   xEnd_M: number;
@@ -54,11 +58,11 @@ export class Lane implements Interfaces.ILane {
 
     this.vehicles = new Collections.LinkedList<Interfaces.IVehicle>();
     this.queued_vehicles = new Collections.LinkedList<Interfaces.IVehicle>();
-
+    this.stops = new Collections.LinkedList<Interfaces.IStop>();
     this.laneconfig.start();
   }
 
-  update(): Interfaces.ILaneStatistics {
+  update(lanes: Collections.LinkedList<Interfaces.ILane>): Interfaces.ILaneStatistics {
     // move all vehichles along by the appropriate distance for the timescale
     // start from front of lane, moving backward to rear of lane
 
@@ -66,9 +70,14 @@ export class Lane implements Interfaces.ILane {
 
     this.queued_vehicles.forEach(qv => {
       qv.queued_update();
-    // gather count of queued buses specifically
-      if (qv instanceof Vehicles.SmallBus || qv instanceof Vehicles.LargeBus || qv instanceof Vehicles.BLineBus) {
+      // gather count of queued buses specifically
+      if (qv instanceof Vehicles.AbstractBus) {
         response.queued_buses += 1;
+      }
+
+      // grab bline stats for reporting
+      if (qv instanceof Vehicles.BLineBus) {
+        response.bline_pause_time += qv.stoppedTime_s;
       }
     });
 
@@ -76,13 +85,8 @@ export class Lane implements Interfaces.ILane {
     this.vehicles.forEach(v => {
       v.update();
 
-      // grab bline stats for reporting
-      if (v instanceof Vehicles.BLineBus) {
-        response.bline_pause_time += v.stoppedTime_s;
-      }
-
       // if vehicle is past the end of this lane, delete it.  
-      if ((v.x_M) > this.xEnd_M) { 
+      if ((v.x_M) > this.xEnd_M) {
         this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
         this.vehicles.remove(v);
       }
@@ -97,6 +101,10 @@ export class Lane implements Interfaces.ILane {
       this.queued_vehicles.add(new Vehicles.LargeBus(0, this.yStart_M, 0, 50, this.config, this));
     }
 
+    if (this.laneconfig.update_m30bus()) {
+      this.queued_vehicles.add(new Vehicles.M30Bus(0, this.yStart_M, 0, 50, this.config, this));
+    }
+
     if (this.laneconfig.update_blinebus()) {
       this.queued_vehicles.add(new Vehicles.BLineBus(0, this.yStart_M, 0, 50, this.config, this));
     }
@@ -106,7 +114,7 @@ export class Lane implements Interfaces.ILane {
     }
 
     // nothing in the lane, and something in the queue - dequeue it
-    if (this.vehicles.size() === 0 && this.queued_vehicles.size() > 0) { 
+    if (this.vehicles.size() === 0 && this.queued_vehicles.size() > 0) {
       // special case for start
       var nextinqueue = this.queued_vehicles.first();
       this.vehicles.add(nextinqueue);
@@ -119,7 +127,7 @@ export class Lane implements Interfaces.ILane {
       var nextinqueue = this.queued_vehicles.first();
 
       if (backmostinlane !== undefined && nextinqueue !== undefined) {
-        if (backmostinlane.x_M > this.config.minimumDistance_M) { 
+        if (backmostinlane.x_M > this.config.minimumDistance_M) {
           // release one from the queue as there is enough space ahead
           this.vehicles.add(nextinqueue);
           this.queued_vehicles.remove(nextinqueue);
@@ -154,17 +162,35 @@ export class Lane implements Interfaces.ILane {
           behind.currentState = Interfaces.VehicleMovementState.accelerating;
         }
       }
+
+      // TBD if car, and below speed
+      // check lane to right
+      // if space, move over
+      // if lane ending, zip merge left
+
+      // TBD if bus
+      // if local bus or m30; and indented bus bay stop to left
+      // - % chance stopping
+      // 
+      // not leftmost, merge left
+      // 
+
     }
     response.queued_vehicles = this.queued_vehicles.size();
     return response;
   }
 
   draw(p: any) {
+    
     p.stroke(255);
     p.strokeWeight(1);
     p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
-
     p.stroke(0);
+
+    this.stops.forEach(s => {
+      s.draw(p);
+    });
+
     this.vehicles.forEach(v => {
       v.draw(p);
     });

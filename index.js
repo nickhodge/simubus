@@ -1,4 +1,4 @@
-define(["require", "exports", "typescript-collections", "./config", "./infrastructure", "./statistics", "knockout", "./libs/p5"], function (require, exports, Collections, Config, Infrastructure, SimStatistics, ko, p5) {
+define(["require", "exports", "typescript-collections", "./config", "./infrastructure", "./vehicles", "./statistics", "knockout", "./libs/p5"], function (require, exports, Collections, Config, Infrastructure, Vehicles, SimStatistics, ko, p5) {
     "use strict";
     var lanes = new Collections.LinkedList();
     var laneconfigs = new Collections.LinkedList();
@@ -9,14 +9,15 @@ define(["require", "exports", "typescript-collections", "./config", "./infrastru
         p.setup = function () {
             p.frameRate(config.frameRate_Ps);
             var i = 0;
-            laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 200, config));
-            laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 1300, config));
-            laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 1300, config));
+            laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 0, config));
             var i = 0;
             laneconfigs.forEach(function (c) {
                 i++;
                 lanes.add(new Infrastructure.Lane(i, 0, 300, config, c, reportStats));
             });
+            lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.M30Bus(0, 0, 0, 60, config, lanes.elementAtIndex(0)));
+            lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
+            lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
             p.createCanvas(config.pixelWidth_P, config.pixelHeight_P);
         };
         p.draw = function () {
@@ -25,7 +26,7 @@ define(["require", "exports", "typescript-collections", "./config", "./infrastru
             p.background(200);
             var globalLaneStats = new Infrastructure.LaneStatistics();
             lanes.forEach(function (l) {
-                var r = l.update();
+                var r = l.update(lanes);
                 globalLaneStats.bline_pause_time += r.bline_pause_time;
                 globalLaneStats.queued_vehicles += r.queued_vehicles;
                 globalLaneStats.queued_buses += r.queued_buses;

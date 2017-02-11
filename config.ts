@@ -8,23 +8,28 @@ export class LaneSimConfig implements Interfaces.ILaneSimConfig {
     config: Interfaces.ISimConfig;
     smallbus_pH: number;
     largebus_pH: number;
+    m30bus_pH: number;
     blinebus_pH: number;
     car_pH: number;
 
     smallbus_Trigger: number;
     largebus_Trigger: number;
+    m30bus_Trigger: number;
     blinebus_Trigger: number;
     car_Trigger: number;
 
-    constructor(_smallbus_pH: number, _largebus_pH: number, _blinebus_pH: number, _car_pH: number, _config: Interfaces.ISimConfig) {
+    constructor(_smallbus_pH: number, _largebus_pH: number,_m30bus_pH:number, _blinebus_pH: number, _car_pH: number, _config: Interfaces.ISimConfig) {
         this.config = _config;
         this.smallbus_pH = _smallbus_pH;
         this.largebus_pH = _largebus_pH;
+        this.m30bus_pH = _m30bus_pH;
         this.blinebus_pH = _blinebus_pH;
         this.car_pH = _car_pH;
 
+        // initially set all to -1, meaning no countdown
         this.smallbus_Trigger = -1;
         this.largebus_Trigger = -1;
+        this.m30bus_Trigger = -1;
         this.blinebus_Trigger = -1;
         this.car_Trigger = -1;
     }
@@ -34,10 +39,12 @@ export class LaneSimConfig implements Interfaces.ILaneSimConfig {
             this.smallbus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.smallbus_pH;
         if (this.largebus_pH !== 0)
             this.largebus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.largebus_pH;
+        if (this.m30bus_pH !== 0)
+            this.m30bus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.m30bus_pH;
         if (this.blinebus_pH !== 0)
             this.blinebus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.blinebus_pH;
         if (this.car_pH !== 0)
-            this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.95, 1.05);;
+            this.car_Trigger = ((60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.car_pH) * this.config.getRandomInRange(0.95, 1.05);
     }
 
     update_smallbus(): boolean {
@@ -56,6 +63,17 @@ export class LaneSimConfig implements Interfaces.ILaneSimConfig {
         this.largebus_Trigger--;
         if (this.largebus_Trigger < 1) {
             this.largebus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.largebus_pH;
+            return true; // yes, enqueue
+        } else {
+            return false;
+        }
+    }
+
+    update_m30bus(): boolean {
+        if (this.m30bus_Trigger < 0) return false;
+        this.m30bus_Trigger--;
+        if (this.m30bus_Trigger < 1) {
+            this.m30bus_Trigger = (60 * 60 * this.config.frameRate_Ps * this.config.simSpeed) / this.m30bus_pH;
             return true; // yes, enqueue
         } else {
             return false;

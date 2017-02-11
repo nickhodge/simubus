@@ -29,6 +29,7 @@ export class BaseVehicle implements Interfaces.IVehicle {
   width_M: number;
   pixelWidth: number;
   currentState: Interfaces.VehicleMovementState;
+  currentIntent: Interfaces.VehicleMovementIntent;
   stopCountdown: number; // stop countdown, in seconds
   acceleration_MpS: number;
   fillcolour_rgb: string;
@@ -51,15 +52,16 @@ export class BaseVehicle implements Interfaces.IVehicle {
     this.width_M = 3;
     this.pixelWidth = this.width_M * this.config.simScale_PpM;
     this.currentState = Interfaces.VehicleMovementState.stopped;
+    this.currentIntent = Interfaces.VehicleMovementIntent.normal;
     this.stopCountdown = 0; // stop countdown, in seconds
     this.acceleration_MpS = _acceleration_MpS; // acc in metres / second
     this.fillcolour_rgb = "#aaa";
     this.strokecolour_rgb = this.fillcolour_rgb;
   }
 
-  stopping_distance() : number {
+  stopping_distance(): number {
     // ref: http://www.softschools.com/formulas/physics/stopping_distance_formula/89/
-    return ( (this.config.KmphToMps(this.currentSpeed_Kmph)**2) / (2 * this.config.coefficientfriction * this.config.gravity));
+    return ((this.config.KmphToMps(this.currentSpeed_Kmph) ** 2) / (2 * this.config.coefficientfriction * this.config.gravity));
   }
 
   queued_update() {
@@ -68,6 +70,15 @@ export class BaseVehicle implements Interfaces.IVehicle {
   }
 
   update() {
+    if (this.stopCountdown > 0) {
+      this.stopCountdown -= (this.config.simFrameRate_Ps);
+      if (this.stopCountdown <= 0) {
+        this.currentState = Interfaces.VehicleMovementState.accelerating;
+      } else {
+        this.currentState = Interfaces.VehicleMovementState.stopped;
+      }
+    }
+
     // based on the current state, and intent
     switch (this.currentState) {
       case Interfaces.VehicleMovementState.decelerating:
@@ -118,7 +129,7 @@ export class BaseVehicle implements Interfaces.IVehicle {
 }
 
 export class AbstractBus extends BaseVehicle {
-  constructor(_description: string, _vehicleLength_M: number,_acceleration_MpS: number, _x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
+  constructor(_description: string, _vehicleLength_M: number, _acceleration_MpS: number, _x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     super(_description, _vehicleLength_M, _acceleration_MpS, _x_M, _y_M, _initialSpeed_Kmph, _maxSpeed_Kmph, _config, _lane);
   }
 }

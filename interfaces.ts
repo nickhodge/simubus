@@ -67,12 +67,12 @@ export enum VehicleMovementState {
   accelerating,
   decelerating,
   cruising,
-  stoppping,
-  stopped,
-  waiting
+  stopped
 }
 
 export enum VehicleMovementIntent {
+  normal,
+  stopping,
   mergingright,
   mergingleft
 }
@@ -88,6 +88,7 @@ export interface IVehicle {
   deltaT_s: number;
   deltaD_M: number;
   currentState: VehicleMovementState;
+  currentIntent: VehicleMovementIntent;
   length_M: number;
   width_M: number;
   x_M: number;
@@ -95,6 +96,7 @@ export interface IVehicle {
   acceleration_MpS: number;
   fillcolour_rgb: string;
   strokecolour_rgb: string;
+  stopCountdown : number;
   queued_update():void;
   update(): void;
   stopping_distance() : number;

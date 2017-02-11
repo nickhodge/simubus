@@ -1,4 +1,4 @@
-define(["require", "exports", "typescript-collections", "./vehicles", "./interfaces"], function (require, exports, Collections, Vehicles, Interfaces) {
+define(["require", "exports", "typescript-collections", "./vehicles", "./interfaces", "./stops"], function (require, exports, Collections, Vehicles, Interfaces, Stops) {
     "use strict";
     var LaneStatistics = (function () {
         function LaneStatistics(s) {
@@ -51,6 +51,28 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                     _this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
                     _this.vehicles.remove(v);
                 }
+                _this.stops.forEach(function (s) {
+                    if (s.xStart_M >= v.x_M && s.stopping && s instanceof Stops.BusStop && v instanceof Vehicles.AbstractBus) {
+                    }
+                    if (s.xStart_M >= v.x_M && s instanceof Stops.TrafficStop) {
+                        if (s.stopping) {
+                            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
+                                v.stopCountdown = s.stop_timing_S;
+                            }
+                            if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
+                                v.currentState = Interfaces.VehicleMovementState.decelerating;
+                                v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+                            }
+                        }
+                        else {
+                            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + v.length_M) {
+                                v.stopCountdown = 0;
+                                v.currentState = Interfaces.VehicleMovementState.accelerating;
+                                v.currentIntent = Interfaces.VehicleMovementIntent.normal;
+                            }
+                        }
+                    }
+                });
             });
             if (this.laneconfig.update_smallbus()) {
                 this.queued_vehicles.add(new Vehicles.SmallBus(0, this.yStart_M, 0, 50, this.config, this));
@@ -97,7 +119,7 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                             behind.currentState = Interfaces.VehicleMovementState.stopped;
                         }
                     }
-                    if (distance >= moving_gap) {
+                    if (distance >= moving_gap && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) {
                         behind.currentState = Interfaces.VehicleMovementState.accelerating;
                     }
                 }

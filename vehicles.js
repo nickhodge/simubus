@@ -23,6 +23,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             this.width_M = 3;
             this.pixelWidth = this.width_M * this.config.simScale_PpM;
             this.currentState = Interfaces.VehicleMovementState.stopped;
+            this.currentIntent = Interfaces.VehicleMovementIntent.normal;
             this.stopCountdown = 0;
             this.acceleration_MpS = _acceleration_MpS;
             this.fillcolour_rgb = "#aaa";
@@ -36,6 +37,15 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             this.stoppedTime_s += this.config.simFrameRate_Ps;
         };
         BaseVehicle.prototype.update = function () {
+            if (this.stopCountdown > 0) {
+                this.stopCountdown -= (this.config.simFrameRate_Ps);
+                if (this.stopCountdown <= 0) {
+                    this.currentState = Interfaces.VehicleMovementState.accelerating;
+                }
+                else {
+                    this.currentState = Interfaces.VehicleMovementState.stopped;
+                }
+            }
             switch (this.currentState) {
                 case Interfaces.VehicleMovementState.decelerating:
                     this.strokecolour_rgb = "#f00";

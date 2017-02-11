@@ -7,10 +7,6 @@ import * as Collections from 'typescript-collections';
 import * as Vehicles from "./vehicles";
 import * as Interfaces from './interfaces';
 
-// TBD add stops at particular _m
-// stop causes vehicles that touch it for _s time
-// add check as approach
-
 export class AbstractStop implements Interfaces.IStop {
     xStart_M: number;
     yStart_M: number;
@@ -39,7 +35,7 @@ export class AbstractStop implements Interfaces.IStop {
 
     draw(p: any) {
         p.stroke(this.strokecolour_rgb); // bus stops blue
-        p.strokeWeight(2);
+        p.strokeWeight(3);
         p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
         p.stroke(0);
     }
@@ -77,12 +73,12 @@ export class TrafficStop extends AbstractStop {
             if (this.stopping) {
                 this.stopping = false;
                 this.trafficStop_Trigger = this.go_timing_S;
-                this.strokecolour_rgb = "#f00"; // red light
+                this.strokecolour_rgb = "#0f0"; // green light
             }
             else {
                this.stopping = true;
                 this.trafficStop_Trigger = this.stop_timing_S;
-                this.strokecolour_rgb = "#0f0"; // green light
+                this.strokecolour_rgb = "#f00"; // red light
             }
         }
     }

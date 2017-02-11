@@ -19,7 +19,7 @@ define(["require", "exports"], function (require, exports) {
         };
         AbstractStop.prototype.draw = function (p) {
             p.stroke(this.strokecolour_rgb);
-            p.strokeWeight(2);
+            p.strokeWeight(3);
             p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
             p.stroke(0);
         };
@@ -55,12 +55,12 @@ define(["require", "exports"], function (require, exports) {
                 if (this.stopping) {
                     this.stopping = false;
                     this.trafficStop_Trigger = this.go_timing_S;
-                    this.strokecolour_rgb = "#f00";
+                    this.strokecolour_rgb = "#0f0";
                 }
                 else {
                     this.stopping = true;
                     this.trafficStop_Trigger = this.stop_timing_S;
-                    this.strokecolour_rgb = "#0f0";
+                    this.strokecolour_rgb = "#f00";
                 }
             }
         };

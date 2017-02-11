@@ -74,7 +74,7 @@ export class Lane implements Interfaces.ILane {
 
     this.queued_vehicles.forEach(qv => {
       qv.queued_update();
-      
+
       // gather count of queued buses specifically
       if (qv instanceof Vehicles.AbstractBus) {
         response.queued_buses += 1;
@@ -95,6 +95,33 @@ export class Lane implements Interfaces.ILane {
         this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
         this.vehicles.remove(v);
       }
+
+      this.stops.forEach(s => {
+        if (s.xStart_M >= v.x_M && s.stopping && s instanceof Stops.BusStop && v instanceof Vehicles.AbstractBus) {
+          // bus stop work
+        }
+
+        if (s.xStart_M >= v.x_M && s instanceof Stops.TrafficStop) {
+          // traffic stop work 
+          if (s.stopping) {
+            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
+              v.stopCountdown = s.stop_timing_S;
+            }
+
+            if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
+              v.currentState = Interfaces.VehicleMovementState.decelerating;
+              v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+            }
+
+          } else {
+            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + v.length_M) {
+              v.stopCountdown = 0;
+              v.currentState = Interfaces.VehicleMovementState.accelerating;
+              v.currentIntent = Interfaces.VehicleMovementIntent.normal;
+            }
+          }
+        }
+      });
     });
 
     // update all the vehicle types: need to enqueue more?
@@ -164,7 +191,7 @@ export class Lane implements Interfaces.ILane {
         }
 
         // if distance is wide enough, accelerate (and let vehicle decide to 'cruise' if at max speed)
-        if (distance >= moving_gap) { // otherwise, OK to start accelerate
+        if (distance >= moving_gap && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) { // otherwise, OK to start accelerate
           behind.currentState = Interfaces.VehicleMovementState.accelerating;
         }
       }
@@ -187,7 +214,7 @@ export class Lane implements Interfaces.ILane {
   }
 
   draw(p: any) {
-    
+
     p.stroke(255);
     p.strokeWeight(1);
     p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);

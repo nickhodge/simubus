@@ -31,6 +31,7 @@ define(["require", "exports"], function (require, exports) {
         function BusStop(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) {
             var _this = _super.call(this, _xStart_M, _yStart_M, _yEnd_M, stopping_s, _config) || this;
             _this.strokecolour_rgb = "#00f";
+            _this.stop_timing_S = 10;
             return _this;
         }
         BusStop.prototype.update = function () {

@@ -42,9 +42,11 @@ export class AbstractStop implements Interfaces.IStop {
 }
 
 export class BusStop extends AbstractStop {
+    stop_timing_S: number;
     constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
         super(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config);
         this.strokecolour_rgb = "#00f";
+        this.stop_timing_S = 10;
     }
     update() {
         // nothing to update periodically

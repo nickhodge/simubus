@@ -41,9 +41,11 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
                 this.stopCountdown -= (this.config.simFrameRate_Ps);
                 if (this.stopCountdown <= 0) {
                     this.currentState = Interfaces.VehicleMovementState.accelerating;
+                    this.currentIntent = Interfaces.VehicleMovementIntent.normal;
                 }
                 else {
                     this.currentState = Interfaces.VehicleMovementState.stopped;
+                    this.currentIntent = Interfaces.VehicleMovementIntent.stopping;
                 }
             }
             switch (this.currentState) {

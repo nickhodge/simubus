@@ -97,8 +97,16 @@ export class Lane implements Interfaces.ILane {
       }
 
       this.stops.forEach(s => {
-        if (s.xStart_M >= v.x_M && s.stopping && s instanceof Stops.BusStop && v instanceof Vehicles.AbstractBus) {
+        if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.AbstractBus) {
           // bus stop work
+            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
+              v.stopCountdown = s.stop_timing_S;
+            }
+
+            if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
+              v.currentState = Interfaces.VehicleMovementState.decelerating;
+              v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+            }
         }
 
         if (s.xStart_M >= v.x_M && s instanceof Stops.TrafficStop) {

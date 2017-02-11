@@ -51,6 +51,8 @@ export interface ISimConfig {
     minimumDistance_M: number; // minimum distance, m, between stationary vehicles
     fromStopGapRatio: number; // ratio of length of vehicle ahead before start from zero
     braking_MpS: number;
+    coefficientfriction: number;
+    gravity:number;
     KmphPerTick(kmph: number): number;
     KmphToMps(kmph: number): number;
     MpsPerTick(m: number): number;
@@ -58,6 +60,7 @@ export interface ISimConfig {
     TicksToSeconds(ticks: number): number;
     getRandomInRange(min: number, max: number): number;
     secondsToHMS(secs: number) :string;
+    KmphToMps(kmph: number): number;
 }
 
 export enum VehicleMovementState {
@@ -94,6 +97,7 @@ export interface IVehicle {
   strokecolour_rgb: string;
   queued_update():void;
   update(): void;
+  stopping_distance() : number;
   draw(p : any): void;
 }
 
@@ -101,8 +105,10 @@ export interface IStop {
   xStart_M: number;
   yStart_M: number;
   stopping: boolean;
-  stopping_s: number;
+  stopping_S: number;
   config: ISimConfig;
+  strokecolour_rgb : string;
+  update():void;
   draw(p : any): void;
 }
 

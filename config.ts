@@ -116,6 +116,8 @@ export class SimConfig implements Interfaces.ISimConfig {
     minimumDistance_M: number; // minimum distance, m, between stationary vehicles
     fromStopGapRatio: number; // ratio of length of vehicle ahead before start from zero
     braking_MpS: number;
+    coefficientfriction: number;
+    gravity:number;
 
     constructor(c?: any) {
         this.absoluteTime_s = 0;
@@ -131,6 +133,8 @@ export class SimConfig implements Interfaces.ISimConfig {
         this.minimumDistance_M = 2; // minimum distance, m, between stationary vehicles
         this.fromStopGapRatio = 0.5; // ratio of length of vehicle ahead before start from zero
         this.braking_MpS = 4; // http://nacto.org/docs/usdg/vehicle_stopping_distance_and_time_upenn.pdf
+        this.coefficientfriction = 0.6; // asphalt
+        this.gravity = 9.8; //m per second    
     }
 
     KmphPerTick(kmph: number): number { //given a km/h and a number of ticks per second give me pixels on current scale 

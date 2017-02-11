@@ -33,6 +33,9 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
         Lane.prototype.update = function (lanes) {
             var _this = this;
             var response = new LaneStatistics();
+            this.stops.forEach(function (s) {
+                s.update();
+            });
             this.queued_vehicles.forEach(function (qv) {
                 qv.queued_update();
                 if (qv instanceof Vehicles.AbstractBus) {
@@ -85,7 +88,7 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                     var ahead = this.vehicles.elementAtIndex(i - 1);
                     var behind = this.vehicles.elementAtIndex(i);
                     var distance = ahead.x_M - (behind.x_M + behind.length_M);
-                    var moving_gap = this.config.KmphToMps(behind.currentSpeed_Kmph) * this.config.stoppingDistance_S;
+                    var moving_gap = behind.stopping_distance();
                     if (behind.currentSpeed_Kmph > 0) {
                         if (distance < moving_gap || distance <= this.config.minimumDistance_M) {
                             behind.currentState = Interfaces.VehicleMovementState.decelerating;

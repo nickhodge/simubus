@@ -19,7 +19,7 @@ define(["require", "exports", "typescript-collections", "./config", "./infrastru
             lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
             lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
             lanes.elementAtIndex(0).stops.add(new Stops.BusStop(40, 0, 4, 90, config));
-            lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(240, 0, 4, 60, config));
+            lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0, 10, 20, 240, 0, 4, 60, config));
             p.createCanvas(config.pixelWidth_P, config.pixelHeight_P);
         };
         p.draw = function () {

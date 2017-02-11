@@ -68,8 +68,13 @@ export class Lane implements Interfaces.ILane {
 
     var response = new LaneStatistics();
 
+    this.stops.forEach(s => {
+      s.update();
+    });
+
     this.queued_vehicles.forEach(qv => {
       qv.queued_update();
+      
       // gather count of queued buses specifically
       if (qv instanceof Vehicles.AbstractBus) {
         response.queued_buses += 1;
@@ -141,7 +146,8 @@ export class Lane implements Interfaces.ILane {
         var behind = this.vehicles.elementAtIndex(i);
 
         var distance = ahead.x_M - (behind.x_M + behind.length_M); // distance from front of one vehicle to the other
-        var moving_gap = this.config.KmphToMps(behind.currentSpeed_Kmph) * this.config.stoppingDistance_S;
+        var moving_gap = behind.stopping_distance(); // based on rear vehicle speed, what is stopping distance?
+        // TBD: relative speed slow down?
 
         // this block only if the vehicle to the rear is moving
         if (behind.currentSpeed_Kmph > 0) {

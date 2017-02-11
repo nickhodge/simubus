@@ -103,6 +103,8 @@ define(["require", "exports"], function (require, exports) {
             this.minimumDistance_M = 2;
             this.fromStopGapRatio = 0.5;
             this.braking_MpS = 4;
+            this.coefficientfriction = 0.6;
+            this.gravity = 9.8;
         }
         SimConfig.prototype.KmphPerTick = function (kmph) {
             return (((kmph * 1000) / 60) / 60 / (this.frameRate_Ps * this.simSpeed));

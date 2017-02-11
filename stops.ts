@@ -11,68 +11,79 @@ import * as Interfaces from './interfaces';
 // stop causes vehicles that touch it for _s time
 // add check as approach
 
-export class BusStop implements Interfaces.IStop {
-  xStart_M: number;
-  yStart_M: number;
-  stopping: boolean;
-  stopping_s: number;
-  config: Interfaces.ISimConfig;
-  pixelStartX: number;
-  pixelStartY: number;
-  pixelEndX: number;
-  pixelEndY: number;
+export class AbstractStop implements Interfaces.IStop {
+    xStart_M: number;
+    yStart_M: number;
+    stopping: boolean;
+    stopping_S: number;
+    config: Interfaces.ISimConfig;
+    pixelStartX: number;
+    pixelStartY: number;
+    pixelEndX: number;
+    pixelEndY: number;
+    strokecolour_rgb: string;
 
-  constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
-    this.config = _config;
-    this.xStart_M = _xStart_M;
-    this.yStart_M = _yStart_M;
-    this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
-    this.pixelStartY = _yStart_M * this.config.simScale_PpM;
-    this.pixelEndX = this.xStart_M * this.config.simScale_PpM;
-    this.pixelEndY = _yEnd_M * this.config.simScale_PpM;
-  }
+    constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
+        this.config = _config;
+        this.xStart_M = _xStart_M;
+        this.yStart_M = _yStart_M;
+        this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
+        this.pixelStartY = _yStart_M * this.config.simScale_PpM;
+        this.pixelEndX = this.xStart_M * this.config.simScale_PpM;
+        this.pixelEndY = _yEnd_M * this.config.simScale_PpM;
+    }
 
-  draw(p: any) {
-    p.stroke("#00f"); // bus stops blue
-    p.strokeWeight(2);
-    p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
-    p.stroke(0);
-  }
+    update() {
+        // nothing to update periodically
+    }
+
+    draw(p: any) {
+        p.stroke(this.strokecolour_rgb); // bus stops blue
+        p.strokeWeight(2);
+        p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
+        p.stroke(0);
+    }
 }
 
-export class TrafficStop implements Interfaces.IStop {
-    xStart_M: number;
-  yStart_M: number;
-  stopping: boolean;
-  stopping_s: number;
-  config: Interfaces.ISimConfig;
-  pixelStartX: number;
-  pixelStartY: number;
-  pixelEndX: number;
-  pixelEndY: number;
+export class BusStop extends AbstractStop {
+    constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
+        super(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config);
+        this.strokecolour_rgb = "#00f";
+    }
+    update() {
+        // nothing to update periodically
+    }
+}
 
-  constructor(_xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
-    this.config = _config;
-    this.stopping = true;
-    this.xStart_M = _xStart_M;
-    this.yStart_M = _yStart_M;
-    this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
-    this.pixelStartY = _yStart_M * this.config.simScale_PpM;
-    this.pixelEndX = this.xStart_M * this.config.simScale_PpM;
-    this.pixelEndY = _yEnd_M * this.config.simScale_PpM;
-  }
+export class TrafficStop extends AbstractStop {
+    go_timing_S: number; // wait this number of seconds before "GO"
+    stop_timing_S: number;
+    trafficStop_Trigger: number;
 
-  strokecolour() : string {
-      if (this.stopping)
-        return "#f00"; // red light
-      else
-        return "#0f0"; // green light
-  }
+    constructor(_initial_sync_pause: number, _go_timing_S: number, _stop_timing_S: number, _xStart_M: number, _yStart_M: number, _yEnd_M: number, stopping_s: number, _config: Interfaces.ISimConfig) {
+        super(_xStart_M, _yStart_M, _yEnd_M, stopping_s, _config);
+        this.strokecolour_rgb = "#f00";
+        this.stopping = true;
+        this.stop_timing_S = _stop_timing_S;
+        this.go_timing_S = _go_timing_S;
+        this.trafficStop_Trigger = _initial_sync_pause;
+    }
 
-  draw(p: any) {
-    p.stroke(this.strokecolour());
-    p.strokeWeight(2);
-    p.line(this.pixelStartX, this.pixelStartY, this.pixelEndX, this.pixelEndY);
-    p.stroke(0);
-  }
+    update() {
+
+        this.trafficStop_Trigger -= (this.config.simFrameRate_Ps);
+
+        if (this.trafficStop_Trigger <= 0) {
+            if (this.stopping) {
+                this.stopping = false;
+                this.trafficStop_Trigger = this.go_timing_S;
+                this.strokecolour_rgb = "#f00"; // red light
+            }
+            else {
+               this.stopping = true;
+                this.trafficStop_Trigger = this.stop_timing_S;
+                this.strokecolour_rgb = "#0f0"; // green light
+            }
+        }
+    }
 }

@@ -57,6 +57,11 @@ export class BaseVehicle implements Interfaces.IVehicle {
     this.strokecolour_rgb = this.fillcolour_rgb;
   }
 
+  stopping_distance() : number {
+    // ref: http://www.softschools.com/formulas/physics/stopping_distance_formula/89/
+    return (this.config.KmphToMps(this.currentSpeed_Kmph)/(2 * this.config.coefficientfriction * this.config.gravity));
+  }
+
   queued_update() {
     this.deltaT_s += this.config.simFrameRate_Ps;
     this.stoppedTime_s += this.config.simFrameRate_Ps;

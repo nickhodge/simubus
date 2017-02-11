@@ -29,7 +29,7 @@ define(["require", "exports", "./interfaces"], function (require, exports, Inter
             this.strokecolour_rgb = this.fillcolour_rgb;
         }
         BaseVehicle.prototype.stopping_distance = function () {
-            return (this.config.KmphToMps(this.currentSpeed_Kmph) / (2 * this.config.coefficientfriction * this.config.gravity));
+            return ((Math.pow(this.config.KmphToMps(this.currentSpeed_Kmph), 2)) / (2 * this.config.coefficientfriction * this.config.gravity));
         };
         BaseVehicle.prototype.queued_update = function () {
             this.deltaT_s += this.config.simFrameRate_Ps;

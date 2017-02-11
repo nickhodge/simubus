@@ -33,27 +33,31 @@ var simubus = function (p: any) {
   p.setup = function () {
     p.frameRate(config.frameRate_Ps);
     var i = 0;
-  
 
-    //laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 20, 200, config));
-    //laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 0, 1300, config));
-    //laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 1300, config));
+    if (true) {
+      laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 20, 200, config));
+      laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 0, 1300, config));
+      laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 1300, config));
 
-    laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 0, config));
-    var i = 0;
+      laneconfigs.forEach(c => {
+        i++;
+        lanes.add(new Infrastructure.Lane(i, 0, 300, config, c, reportStats));
+      });
+    } else {
+      laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 0, config));
 
-    laneconfigs.forEach(c => {
-      i++;
-      lanes.add(new Infrastructure.Lane(i, 0, 300, config, c, reportStats));
-    });
+      laneconfigs.forEach(c => {
+        i++;
+        lanes.add(new Infrastructure.Lane(i, 0, 300, config, c, reportStats));
+      });
 
-    lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.M30Bus(0, 0, 0, 60, config, lanes.elementAtIndex(0)));
-    lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
-    lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
- 
-    lanes.elementAtIndex(0).stops.add(new Stops.BusStop(40,0,4,90,config));
-    lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0,10,20,240,0,4,60,config));
+      lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.M30Bus(0, 0, 0, 60, config, lanes.elementAtIndex(0)));
+      lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
+      lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
 
+      lanes.elementAtIndex(0).stops.add(new Stops.BusStop(40, 0, 4, 90, config));
+      lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0, 10, 20, 240, 0, 4, 60, config));
+    }
     p.createCanvas(config.pixelWidth_P, config.pixelHeight_P);
   };
 

@@ -59,7 +59,7 @@ export class BaseVehicle implements Interfaces.IVehicle {
 
   stopping_distance() : number {
     // ref: http://www.softschools.com/formulas/physics/stopping_distance_formula/89/
-    return (this.config.KmphToMps(this.currentSpeed_Kmph)/(2 * this.config.coefficientfriction * this.config.gravity));
+    return ( (this.config.KmphToMps(this.currentSpeed_Kmph)**2) / (2 * this.config.coefficientfriction * this.config.gravity));
   }
 
   queued_update() {

@@ -99,11 +99,12 @@ define(["require", "exports"], function (require, exports) {
             this.frameRate_Ps = 30;
             this.simFrameRate_Ps = 1 / this.frameRate_Ps;
             this.simSpeed = 1.0;
+            this.reactionTime_S = 1.4;
             this.stoppingDistance_S = 1.4;
-            this.minimumDistance_M = 2;
+            this.minimumDistance_M = 1;
             this.fromStopGapRatio = 0.5;
             this.braking_MpS = 4;
-            this.coefficientfriction = 0.6;
+            this.coefficientfriction = 0.9;
             this.gravity = 9.8;
         }
         SimConfig.prototype.KmphPerTick = function (kmph) {
@@ -125,12 +126,15 @@ define(["require", "exports"], function (require, exports) {
             return (kmph * 1000 / 60 / 60);
         };
         SimConfig.prototype.getRandomInRange = function (min, max) {
-            return Math.random() * (max - min) + min;
+            return Math.floor(Math.random() * (max - min + 1) + min);
         };
         SimConfig.prototype.secondsToHMS = function (secs) {
             var date = new Date(null);
             date.setSeconds(secs);
             return date.toISOString().substr(11, 8);
+        };
+        SimConfig.prototype.reactionTimeToM = function (kmph) {
+            return (this.KmphToMps(kmph) * this.reactionTime_S);
         };
         return SimConfig;
     }());

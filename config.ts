@@ -115,6 +115,7 @@ export class SimConfig implements Interfaces.ISimConfig {
     stoppingDistance_S: number; // stopping distance, in seconds between moving vehicles
     minimumDistance_M: number; // minimum distance, m, between stationary vehicles
     fromStopGapRatio: number; // ratio of length of vehicle ahead before start from zero
+    reactionTime_S:number;
     braking_MpS: number;
     coefficientfriction: number;
     gravity:number;
@@ -128,20 +129,20 @@ export class SimConfig implements Interfaces.ISimConfig {
         this.frameRate_Ps = 30; // frames per second to run animation
         this.simFrameRate_Ps = 1 / this.frameRate_Ps; // simulation running at framerate per second
         this.simSpeed = 1.0; // factor speed in framerate (1 == same as frameRate_Ps)
-
+        this.reactionTime_S = 1.4; // human reaction time, seconds ref: http://journals.sagepub.com/doi/pdf/10.1177/154193120004402026
         this.stoppingDistance_S = 1.4; // stopping distance, in seconds between moving vehicles
-        this.minimumDistance_M = 2; // minimum distance, m, between stationary vehicles
+        this.minimumDistance_M = 1; // minimum distance, m, between stationary vehicles
         this.fromStopGapRatio = 0.5; // ratio of length of vehicle ahead before start from zero
         this.braking_MpS = 4; // http://nacto.org/docs/usdg/vehicle_stopping_distance_and_time_upenn.pdf
-        this.coefficientfriction = 0.6; // asphalt
+        this.coefficientfriction = 0.9; // asphalt with Rubber, dry http://www.engineeringtoolbox.com/friction-coefficients-d_778.html
         this.gravity = 9.8; //m per second    
     }
 
-    KmphPerTick(kmph: number): number { //given a km/h and a number of ticks per second give me pixels on current scale 
+    KmphPerTick(kmph: number): number { //given a km/h and a number of ticks per second give me meters on current scale 
         return (((kmph * 1000) / 60) / 60 / (this.frameRate_Ps * this.simSpeed));
     };
 
-    MpsPerTick(m: number): number { //given a m/s and a number of ticks per second give me pixels on current scale 
+    MpsPerTick(m: number): number { //given a m/s and a number of ticks per second give me meters on current scale 
         return (m / (this.frameRate_Ps * this.simSpeed));
     };
 
@@ -158,12 +159,16 @@ export class SimConfig implements Interfaces.ISimConfig {
     }
 
     getRandomInRange(min: number, max: number): number {
-        return Math.random() * (max - min) + min;
+        return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
     secondsToHMS(secs: number) : string {
         var date = new Date(null);
         date.setSeconds(secs); 
         return date.toISOString().substr(11, 8);
+    }
+
+    reactionTimeToM(kmph : number) : number {
+        return (this.KmphToMps(kmph) * this.reactionTime_S);
     }
 }

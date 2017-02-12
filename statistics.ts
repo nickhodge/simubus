@@ -6,6 +6,18 @@ import * as Collections from 'typescript-collections';
 import * as ko from 'knockout';
 import * as Interfaces from './interfaces';
 
+
+export class LaneStatistics implements Interfaces.ILaneStatistics {
+  bline_pause_time: number;
+  queued_vehicles: number;
+  queued_buses: number;
+  constructor(s?: any) {
+    this.bline_pause_time = 0;
+    this.queued_vehicles = 0;
+    this.queued_buses = 0;
+  }
+}
+
 export class SimStatistics implements Interfaces.ISimStatistics {
     vehicles_in_queue : KnockoutObservable<number>;
     buses_in_queue : KnockoutObservable<number>;

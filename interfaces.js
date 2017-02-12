@@ -11,8 +11,9 @@ define(["require", "exports"], function (require, exports) {
     (function (VehicleMovementIntent) {
         VehicleMovementIntent[VehicleMovementIntent["normal"] = 0] = "normal";
         VehicleMovementIntent[VehicleMovementIntent["stopping"] = 1] = "stopping";
-        VehicleMovementIntent[VehicleMovementIntent["mergingright"] = 2] = "mergingright";
-        VehicleMovementIntent[VehicleMovementIntent["mergingleft"] = 3] = "mergingleft";
+        VehicleMovementIntent[VehicleMovementIntent["leavingstop"] = 2] = "leavingstop";
+        VehicleMovementIntent[VehicleMovementIntent["mergingright"] = 3] = "mergingright";
+        VehicleMovementIntent[VehicleMovementIntent["mergingleft"] = 4] = "mergingleft";
     })(VehicleMovementIntent = exports.VehicleMovementIntent || (exports.VehicleMovementIntent = {}));
 });
 //# sourceMappingURL=interfaces.js.map

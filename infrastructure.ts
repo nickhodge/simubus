@@ -7,21 +7,10 @@ import * as Collections from 'typescript-collections';
 import * as Vehicles from "./vehicles";
 import * as Interfaces from './interfaces';
 import * as Stops from './stops';
-
-export class LaneStatistics implements Interfaces.ILaneStatistics {
-  bline_pause_time: number;
-  queued_vehicles: number;
-  queued_buses: number;
-  constructor(s?: any) {
-    this.bline_pause_time = 0;
-    this.queued_vehicles = 0;
-    this.queued_buses = 0;
-  }
-}
+import * as Statistics from './statistics';
 
 
-
-export class Lane implements Interfaces.ILane {
+export class Lane implements Interfaces.ILane, Interfaces.IRoadThing {
   config: Interfaces.ISimConfig;
   laneconfig: Interfaces.ILaneSimConfig;
   sim_statistics: Interfaces.ISimStatistics;
@@ -32,7 +21,7 @@ export class Lane implements Interfaces.ILane {
   xStart_M: number;
   xEnd_M: number;
   num: number;
-  laneWidth_M: number;
+  width_M: number;
   yStart_M: number;
   yEnd_M: number;
   pixelStartX: number;
@@ -47,8 +36,8 @@ export class Lane implements Interfaces.ILane {
     this.num = _num; // lane number, lower == more curbside
     this.xStart_M = _xStart_M; // starting
     this.xEnd_M = _xEnd_M; // end
-    this.laneWidth_M = 4; // lane is 4m wide
-    this.yStart_M = (this.num * this.laneWidth_M) + (this.laneWidth_M / 2);
+    this.width_M = 4; // lane is 4m wide
+    this.yStart_M = (this.num * this.width_M) + (this.width_M / 2);
     this.yEnd_M = this.yStart_M;
     this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
     this.pixelStartY = this.yStart_M * this.config.simScale_PpM;
@@ -62,14 +51,35 @@ export class Lane implements Interfaces.ILane {
     this.laneconfig.start();
   }
 
+  front_of(): number {
+    return (this.xEnd_M);
+  }
+
+  end_of(): number {
+    return (this.xEnd_M);
+  }
+
+  rear_of(): number {
+    return (this.xStart_M)
+  }
+
   update(lanes: Collections.LinkedList<Interfaces.ILane>): Interfaces.ILaneStatistics {
     // move all vehichles along by the appropriate distance for the timescale
     // start from front of lane, moving backward to rear of lane
 
-    var response = new LaneStatistics();
+    var response = new Statistics.LaneStatistics();
 
     this.stops.forEach(s => {
-      s.update();
+      if (s.update()) {
+        this.vehicles.forEach(v => {
+          if (s.near_vehicle(v)) {
+            if (!s.stopping) {
+              v.stopCountdown_S = 0;
+              v.currentState = Interfaces.VehicleMovementState.accelerating;
+            }
+          }
+        });
+      }
     });
 
     this.queued_vehicles.forEach(qv => {
@@ -88,51 +98,57 @@ export class Lane implements Interfaces.ILane {
 
     // each in lane
     this.vehicles.forEach(v => {
-      v.update();
 
       // if vehicle is past the end of this lane, delete it.  
-      if ((v.x_M) > this.xEnd_M) {
-        this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
+      if (v.rear_of() >= this.end_of()) {
+        this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_S);
         this.vehicles.remove(v);
       }
 
       this.stops.forEach(s => {
-        if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.Bus) {
-          // bus stop work
-            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
-              v.stopCountdown = s.stop_timing_S;
-            }
 
-            if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
-              v.currentState = Interfaces.VehicleMovementState.decelerating;
-              v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
-            }
-        }
+        if (v.stop_ahead(s)) { // only process this stop if it is "ahead" of current vehicle
+          if (s instanceof Stops.BusStop && v instanceof Vehicles.Bus) { // bus stop work        
+            if (v.islocalstopping) {
+              if (v.currentState !== Interfaces.VehicleMovementState.stopped) { // if vehicle is not already at a stop
+                if (v.close_enough(s)) {
+                  v.currentState = Interfaces.VehicleMovementState.stopped;
+                  v.stopCountdown_S = s.trafficStop_Trigger_S;
+                }
 
-        if (s.xStart_M >= v.x_M && s instanceof Stops.TrafficStop) {
-          // traffic stop work 
-          if (s.stopping) {
-            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
-              v.stopCountdown = s.stop_timing_S;
+                if (v.near_stop(s) && v.stopCountdown_S === 0) { // getting closer, decelerate
+                  v.currentState = Interfaces.VehicleMovementState.decelerating;
+                  v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+                }
+              }
             }
+          }
 
-            if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
-              v.currentState = Interfaces.VehicleMovementState.decelerating;
-              v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
-            }
+          if (s instanceof Stops.TrafficStop) {
+            // traffic stop work 
+            if (s.stopping) {
+              if (v.close_enough(s)) {
+                v.currentState = Interfaces.VehicleMovementState.stopped;
+                v.stopCountdown_S = s.trafficStop_Trigger_S / this.config.simFrameRate_Ps;
+              }
 
-          } else {
-            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + v.length_M) {
-              v.stopCountdown = 0;
-              v.currentState = Interfaces.VehicleMovementState.accelerating;
-              v.currentIntent = Interfaces.VehicleMovementIntent.normal;
+              if (v.near_stop(s) && v.stopCountdown_S === 0) {
+                v.currentState = Interfaces.VehicleMovementState.decelerating;
+                v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+              }
+            } else {
+              v.stopCountdown_S = 0;
             }
           }
         }
       });
+      v.update();
     });
 
+
+
     // update all the vehicle types: need to enqueue more?
+    // TBD: implement as visitor pattern
     if (this.laneconfig.update_smallbus()) {
       this.queued_vehicles.add(new Vehicles.SmallBus(0, this.yStart_M, 0, 50, this.config, this));
     }
@@ -167,11 +183,18 @@ export class Lane implements Interfaces.ILane {
       var nextinqueue = this.queued_vehicles.first();
 
       if (backmostinlane !== undefined && nextinqueue !== undefined) {
-        if (backmostinlane.x_M > this.config.minimumDistance_M) {
+        if (backmostinlane.front_of() > this.config.minimumDistance_M) {
           // release one from the queue as there is enough space ahead
           this.vehicles.add(nextinqueue);
           this.queued_vehicles.remove(nextinqueue);
         }
+      }
+    }
+
+    if (this.vehicles.size() >= 1) {
+      var f = this.vehicles.elementAtIndex(0);
+      if (f.currentState === Interfaces.VehicleMovementState.decelerating && f.stopCountdown_S <= 0 && !f.any_stops_ahead(this.stops)) {
+        f.currentState = Interfaces.VehicleMovementState.accelerating;
       }
     }
 
@@ -180,7 +203,7 @@ export class Lane implements Interfaces.ILane {
         var ahead = this.vehicles.elementAtIndex(i - 1);
         var behind = this.vehicles.elementAtIndex(i);
 
-        var distance = ahead.x_M - (behind.x_M + behind.length_M); // distance from front of one vehicle to the other
+        var distance = ahead.rear_of() - behind.front_of(); // distance from front of one vehicle to the other
         var moving_gap = behind.stopping_distance(); // based on rear vehicle speed, what is stopping distance?
         // TBD: relative speed slow down?
 
@@ -192,7 +215,7 @@ export class Lane implements Interfaces.ILane {
             behind.currentState = Interfaces.VehicleMovementState.decelerating; // change to cruise
           }
 
-          // car ahead stoppped, and we are getting close. stop!
+          // car ahead stopped, and we are getting close. stop!
           if (ahead.currentSpeed_Kmph === 0 && distance <= this.config.minimumDistance_M) {
             behind.currentState = Interfaces.VehicleMovementState.stopped; // change to stop
           }
@@ -204,7 +227,8 @@ export class Lane implements Interfaces.ILane {
         }
       }
 
-      // TBD if car, and below speed
+
+      // TBD if car, and below max speed
       // check lane to right
       // if space, move over
       // if lane ending, zip merge left
@@ -215,6 +239,7 @@ export class Lane implements Interfaces.ILane {
       // 
       // not leftmost, merge left
       // 
+      // if bus stopped ahead, and not stopping, zip merge right
 
     }
     response.queued_vehicles = this.queued_vehicles.size();

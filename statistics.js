@@ -1,5 +1,14 @@
 define(["require", "exports", "knockout"], function (require, exports, ko) {
     "use strict";
+    var LaneStatistics = (function () {
+        function LaneStatistics(s) {
+            this.bline_pause_time = 0;
+            this.queued_vehicles = 0;
+            this.queued_buses = 0;
+        }
+        return LaneStatistics;
+    }());
+    exports.LaneStatistics = LaneStatistics;
     var SimStatistics = (function () {
         function SimStatistics(s) {
             this.vehicles_in_queue = ko.observable(0);

@@ -1,14 +1,5 @@
-define(["require", "exports", "typescript-collections", "./vehicles", "./interfaces", "./stops"], function (require, exports, Collections, Vehicles, Interfaces, Stops) {
+define(["require", "exports", "typescript-collections", "./vehicles", "./interfaces", "./stops", "./statistics"], function (require, exports, Collections, Vehicles, Interfaces, Stops, Statistics) {
     "use strict";
-    var LaneStatistics = (function () {
-        function LaneStatistics(s) {
-            this.bline_pause_time = 0;
-            this.queued_vehicles = 0;
-            this.queued_buses = 0;
-        }
-        return LaneStatistics;
-    }());
-    exports.LaneStatistics = LaneStatistics;
     var Lane = (function () {
         function Lane(_num, _xStart_M, _xEnd_M, _config, _laneconfig, _simstatistics) {
             this.config = _config;
@@ -17,8 +8,8 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
             this.num = _num;
             this.xStart_M = _xStart_M;
             this.xEnd_M = _xEnd_M;
-            this.laneWidth_M = 4;
-            this.yStart_M = (this.num * this.laneWidth_M) + (this.laneWidth_M / 2);
+            this.width_M = 4;
+            this.yStart_M = (this.num * this.width_M) + (this.width_M / 2);
             this.yEnd_M = this.yStart_M;
             this.pixelStartX = this.xStart_M * this.config.simScale_PpM;
             this.pixelStartY = this.yStart_M * this.config.simScale_PpM;
@@ -30,11 +21,29 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
             this.stops = new Collections.LinkedList();
             this.laneconfig.start();
         }
+        Lane.prototype.front_of = function () {
+            return (this.xEnd_M);
+        };
+        Lane.prototype.end_of = function () {
+            return (this.xEnd_M);
+        };
+        Lane.prototype.rear_of = function () {
+            return (this.xStart_M);
+        };
         Lane.prototype.update = function (lanes) {
             var _this = this;
-            var response = new LaneStatistics();
+            var response = new Statistics.LaneStatistics();
             this.stops.forEach(function (s) {
-                s.update();
+                if (s.update()) {
+                    _this.vehicles.forEach(function (v) {
+                        if (s.near_vehicle(v)) {
+                            if (!s.stopping) {
+                                v.stopCountdown_S = 0;
+                                v.currentState = Interfaces.VehicleMovementState.accelerating;
+                            }
+                        }
+                    });
+                }
             });
             this.queued_vehicles.forEach(function (qv) {
                 qv.queued_update();
@@ -46,40 +55,44 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                 }
             });
             this.vehicles.forEach(function (v) {
-                v.update();
-                if ((v.x_M) > _this.xEnd_M) {
-                    _this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_s);
+                if (v.rear_of() >= _this.end_of()) {
+                    _this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_S);
                     _this.vehicles.remove(v);
                 }
                 _this.stops.forEach(function (s) {
-                    if (s.xStart_M >= v.x_M && v.stopCountdown <= 0 && s instanceof Stops.BusStop && v instanceof Vehicles.Bus) {
-                        if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
-                            v.stopCountdown = s.stop_timing_S;
-                        }
-                        if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
-                            v.currentState = Interfaces.VehicleMovementState.decelerating;
-                            v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
-                        }
-                    }
-                    if (s.xStart_M >= v.x_M && s instanceof Stops.TrafficStop) {
-                        if (s.stopping) {
-                            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + (v.length_M * 0.95)) {
-                                v.stopCountdown = s.stop_timing_S;
-                            }
-                            if (s.xStart_M - (v.x_M + v.length_M) <= v.stopping_distance()) {
-                                v.currentState = Interfaces.VehicleMovementState.decelerating;
-                                v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+                    if (v.stop_ahead(s)) {
+                        if (s instanceof Stops.BusStop && v instanceof Vehicles.Bus) {
+                            if (v.islocalstopping) {
+                                if (v.currentState !== Interfaces.VehicleMovementState.stopped) {
+                                    if (v.close_enough(s)) {
+                                        v.currentState = Interfaces.VehicleMovementState.stopped;
+                                        v.stopCountdown_S = s.trafficStop_Trigger_S;
+                                    }
+                                    if (v.near_stop(s) && v.stopCountdown_S === 0) {
+                                        v.currentState = Interfaces.VehicleMovementState.decelerating;
+                                        v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+                                    }
+                                }
                             }
                         }
-                        else {
-                            if (s.xStart_M >= v.x_M && s.xStart_M <= v.x_M + v.length_M) {
-                                v.stopCountdown = 0;
-                                v.currentState = Interfaces.VehicleMovementState.accelerating;
-                                v.currentIntent = Interfaces.VehicleMovementIntent.normal;
+                        if (s instanceof Stops.TrafficStop) {
+                            if (s.stopping) {
+                                if (v.close_enough(s)) {
+                                    v.currentState = Interfaces.VehicleMovementState.stopped;
+                                    v.stopCountdown_S = s.trafficStop_Trigger_S / _this.config.simFrameRate_Ps;
+                                }
+                                if (v.near_stop(s) && v.stopCountdown_S === 0) {
+                                    v.currentState = Interfaces.VehicleMovementState.decelerating;
+                                    v.currentIntent = Interfaces.VehicleMovementIntent.stopping;
+                                }
+                            }
+                            else {
+                                v.stopCountdown_S = 0;
                             }
                         }
                     }
                 });
+                v.update();
             });
             if (this.laneconfig.update_smallbus()) {
                 this.queued_vehicles.add(new Vehicles.SmallBus(0, this.yStart_M, 0, 50, this.config, this));
@@ -106,17 +119,23 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                 var backmostinlane = this.vehicles.last();
                 var nextinqueue = this.queued_vehicles.first();
                 if (backmostinlane !== undefined && nextinqueue !== undefined) {
-                    if (backmostinlane.x_M > this.config.minimumDistance_M) {
+                    if (backmostinlane.front_of() > this.config.minimumDistance_M) {
                         this.vehicles.add(nextinqueue);
                         this.queued_vehicles.remove(nextinqueue);
                     }
+                }
+            }
+            if (this.vehicles.size() >= 1) {
+                var f = this.vehicles.elementAtIndex(0);
+                if (f.currentState === Interfaces.VehicleMovementState.decelerating && f.stopCountdown_S <= 0 && !f.any_stops_ahead(this.stops)) {
+                    f.currentState = Interfaces.VehicleMovementState.accelerating;
                 }
             }
             if (this.vehicles.size() >= 2) {
                 for (var i = 1; i < this.vehicles.size(); i++) {
                     var ahead = this.vehicles.elementAtIndex(i - 1);
                     var behind = this.vehicles.elementAtIndex(i);
-                    var distance = ahead.x_M - (behind.x_M + behind.length_M);
+                    var distance = ahead.rear_of() - behind.front_of();
                     var moving_gap = behind.stopping_distance();
                     if (behind.currentSpeed_Kmph > 0) {
                         if (distance < moving_gap || distance <= this.config.minimumDistance_M) {

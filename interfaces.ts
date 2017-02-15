@@ -5,68 +5,69 @@
 import * as Collections from 'typescript-collections';
 
 export interface ILaneStatistics {
-  bline_pause_time: number;
   queued_vehicles: number;
   queued_buses: number;
 }
 
 export interface ISimStatistics {
-  vehicles_in_queue : KnockoutObservable<number>;
-  vehicles_average_Kmph : KnockoutObservable<number>;
-  vehicles_finished : KnockoutObservable<number>;
-  vehicles_finished_distance_M : KnockoutObservable<number>;
-  vehicles_finished_time_S : KnockoutObservable<number>;
-  bline_pause_time_S :KnockoutObservable<number>;
-  buses_in_queue : KnockoutObservable<number>;
+  vehicles_in_queue: KnockoutObservable<number>;
+  vehicles_average_Kmph: KnockoutObservable<number>;
+  vehicles_finished: KnockoutObservable<number>;
+  vehicles_finished_distance_M: KnockoutObservable<number>;
+  vehicles_finished_time_S: KnockoutObservable<number>;
+  avg_bline_queued_time_S: KnockoutObservable<number>;
+  cumulative_bline_queued_time_S : KnockoutObservable<number>;
+  cumulative_bline_finished : KnockoutObservable<number>;
+  buses_in_queue: KnockoutObservable<number>;
   absoluteTime_S: KnockoutObservable<number>;
-  vehicles_finish_pH : KnockoutObservable<number>;
-  update_vehicle_finished(d: number, s : number) : void;
+  vehicles_finish_pH: KnockoutObservable<number>;
+  update_vehicle_finished(v: IVehicle): void;
 }
 
 export interface ILaneSimConfig {
-    config: ISimConfig;
-    smallbus_pH: number;
-    largebus_pH: number;
-    m30bus_pH: number;
-    blinebus_pH: number;
-    car_pH: number;
-    start(): void;
-    update_smallbus(): boolean;
-    update_largebus(): boolean;
-    update_blinebus(): boolean;
-    update_m30bus(): boolean;
-    update_car(): boolean;
+  config: ISimConfig;
+  smallbus_pH: number;
+  largebus_pH: number;
+  m30bus_pH: number;
+  blinebus_pH: number;
+  car_pH: number;
+  start(): void;
+  update_smallbus(): boolean;
+  update_largebus(): boolean;
+  update_blinebus(): boolean;
+  update_m30bus(): boolean;
+  update_car(): boolean;
 }
 
 export interface IRoadThing {
-  xStart_M : number; // starting position (x) in absolute meters
-  yStart_M : number; // starting position (y) in absolute meters
-  length_M : number; // length in meters
-  width_M : number; // width in meters
+  xStart_M: number; // starting position (x) in absolute meters
+  yStart_M: number; // starting position (y) in absolute meters
+  length_M: number; // length in meters
+  width_M: number; // width in meters
 }
 
 export interface ISimConfig {
-    absoluteTime_s: number; // absolute time 0 this sim has been running (s)
-    pixelHeight_P: number;
-    pixelWidth_P: number; // measured in pixels
-    simDistance_M: number; //measured in metres
-    simScale_PpM: number; // each pixel == simScale metres
-    frameRate_Ps: number; // render frames per second
-    simFrameRate_Ps: number; // each frame is this much of a second
-    simSpeed: number;     // factor speed in framerate (1 == same as frameRate_Ps)
-    minimumDistance_M: number; // minimum distance, m, between stationary vehicles
-    coefficientfriction: number;
-    gravity:number;
-    reactionTime_S:number;
-    KmphPerTick(kmph: number): number;
-    KmphToMps(kmph: number): number;
-    MpsPerTick(m: number): number;
-    MpsToKmphTick(mps: number): number;
-    TicksToSeconds(ticks: number): number;
-    getRandomInRange(min: number, max: number): number;
-    secondsToHMS(secs: number) :string;
-    KmphToMps(kmph: number): number;
-    reactionTimeToM(kmph : number) : number
+  absoluteTime_s: number; // absolute time 0 this sim has been running (s)
+  pixelHeight_P: number;
+  pixelWidth_P: number; // measured in pixels
+  simDistance_M: number; //measured in metres
+  simScale_PpM: number; // each pixel == simScale metres
+  frameRate_Ps: number; // render frames per second
+  simFrameRate_Ps: number; // each frame is this much of a second
+  simSpeed: number;     // factor speed in framerate (1 == same as frameRate_Ps)
+  minimumDistance_M: number; // minimum distance, m, between stationary vehicles
+  coefficientfriction: number;
+  gravity: number;
+  reactionTime_S: number;
+  KmphPerTick(kmph: number): number;
+  KmphToMps(kmph: number): number;
+  MpsPerTick(m: number): number;
+  MpsToKmphTick(mps: number): number;
+  TicksToSeconds(ticks: number): number;
+  getRandomInRange(min: number, max: number): number;
+  secondsToHMS(secs: number): string;
+  KmphToMps(kmph: number): number;
+  reactionTimeToM(kmph: number): number
 }
 
 export enum VehicleMovementState {
@@ -100,47 +101,48 @@ export interface IVehicle {
   deleration_MpS: number;
   fillcolour_rgb: string;
   strokecolour_rgb: string;
-  stopCountdown_S : number;
-  front_of():number;
-  rear_of():number;
-  stop_ahead(s : IStop) :boolean;
-  near_stop(s : IRoadThing) : boolean;
-  any_stops_ahead(s : Collections.LinkedList<IStop>) : boolean;
-  close_enough(s : IRoadThing) : boolean
-  queued_update():void;
+  stopCountdown_S: number;
+  queued_time_S: number;
+  front_of(): number;
+  rear_of(): number;
+  stop_ahead(s: IStop): boolean;
+  near_stop(s: IRoadThing): boolean;
+  any_stops_ahead(s: Collections.LinkedList<IStop>): boolean;
+  close_enough(s: IRoadThing): boolean
+  queued_update(): void;
   update(): void;
-  stopping_distance() : number;
-  draw(p : any): void;
+  stopping_distance_M(): number;
+  draw(p: any): void;
 }
 
 export interface IStop {
   stopping: boolean;
   stopping_S: number;
   lane: IRoadThing;
-  trafficStop_Trigger_S : number;
+  trafficStop_Trigger_S: number;
   config: ISimConfig;
-  strokecolour_rgb : string;
-  front_of():number;
-  rear_of():number;
+  strokecolour_rgb: string;
+  front_of(): number;
+  rear_of(): number;
   near_vehicles(v: Collections.LinkedList<IVehicle>): boolean;
   near_vehicle(v: IVehicle): boolean
   update(): boolean;
-  draw(p : any): void;
+  draw(p: any): void;
 }
 
 export interface ILane {
-   xStart_M : number; // starting position (x) in absolute meters
-  yStart_M : number; // starting position (y) in absolute meters
-  length_M : number; // length in meters
-  width_M : number; // width in meters
+  xStart_M: number; // starting position (x) in absolute meters
+  yStart_M: number; // starting position (y) in absolute meters
+  length_M: number; // length in meters
+  width_M: number; // width in meters
   config: ISimConfig;
   laneconfig: ILaneSimConfig;
   vehicles: Collections.LinkedList<IVehicle>;
   queued_vehicles: Collections.LinkedList<IVehicle>;
   stops: Collections.LinkedList<IStop>;
   sim_statistics: ISimStatistics;
-  front_of():number;
-  rear_of():number;
-  update(lanes : Collections.LinkedList<ILane>): ILaneStatistics;
-  draw(p : any): void;
+  front_of(): number;
+  rear_of(): number;
+  update(lanes: Collections.LinkedList<ILane>): ILaneStatistics;
+  draw(p: any): void;
 }

@@ -38,6 +38,7 @@ export abstract class BaseVehicle implements Interfaces.IVehicle, Interfaces.IRo
   fillcolour_rgb: string;
   strokecolour_rgb: string;
   stoppedTime_S: number;
+  queued_time_S:number;
 
   constructor(_description: string, _vehicleLength_M: number, _acceleration_MpS: number, _deleration_MpS: number, _x_M: number, _y_M: number, _initialSpeed_Kmph: number, _maxSpeed_Kmph: number, _config: Interfaces.ISimConfig, _lane: Interfaces.ILane) {
     this.description = _description;
@@ -51,6 +52,7 @@ export abstract class BaseVehicle implements Interfaces.IVehicle, Interfaces.IRo
     this.stoppedTime_S = 0; // seconds stopped
     this.deltaT_S = 0; // seconds active (delta - T)
     this.deltaD_M = 0; // meters travelled (delta - D)
+    this.queued_time_S = 0; // time waiting behind another, but not at stop lights
     this.initialSpeed_Kmph = _initialSpeed_Kmph;
     this.currentSpeed_Kmph = this.initialSpeed_Kmph;
     this.pixelLength = this.length_M * this.config.simScale_PpM;
@@ -64,9 +66,9 @@ export abstract class BaseVehicle implements Interfaces.IVehicle, Interfaces.IRo
     this.strokecolour_rgb = this.fillcolour_rgb;
   }
 
-  stopping_distance(): number {
+  stopping_distance_M(): number {
     // ref: http://www.softschools.com/formulas/physics/stopping_distance_formula/89/
-    return ((this.config.KmphToMps(this.currentSpeed_Kmph) ** 2) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph);
+    return ((this.config.KmphToMps(this.currentSpeed_Kmph) ** 2) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph) + this.config.minimumDistance_M;
   }
 
   front_of(): number {
@@ -100,7 +102,7 @@ export abstract class BaseVehicle implements Interfaces.IVehicle, Interfaces.IRo
   }
 
   near_stop(s: Interfaces.IRoadThing): boolean {
-    if (this.distance_between(s) <= this.stopping_distance())
+    if (this.distance_between(s) <= this.stopping_distance_M())
       return true;
     else
       return false;

@@ -50,13 +50,10 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                 if (qv instanceof Vehicles.Bus) {
                     response.queued_buses += 1;
                 }
-                if (qv instanceof Vehicles.BLineBus) {
-                    response.bline_pause_time += qv.stoppedTime_s;
-                }
             });
             this.vehicles.forEach(function (v) {
                 if (v.rear_of() >= _this.end_of()) {
-                    _this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_S);
+                    _this.sim_statistics.update_vehicle_finished(v);
                     _this.vehicles.remove(v);
                 }
                 _this.stops.forEach(function (s) {
@@ -136,13 +133,15 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                     var ahead = this.vehicles.elementAtIndex(i - 1);
                     var behind = this.vehicles.elementAtIndex(i);
                     var distance = ahead.rear_of() - behind.front_of();
-                    var moving_gap = behind.stopping_distance();
+                    var moving_gap = behind.stopping_distance_M();
                     if (behind.currentSpeed_Kmph > 0) {
                         if (distance < moving_gap || distance <= this.config.minimumDistance_M) {
                             behind.currentState = Interfaces.VehicleMovementState.decelerating;
+                            behind.queued_time_S += this.config.simFrameRate_Ps;
                         }
                         if (ahead.currentSpeed_Kmph === 0 && distance <= this.config.minimumDistance_M) {
                             behind.currentState = Interfaces.VehicleMovementState.stopped;
+                            behind.queued_time_S += this.config.simFrameRate_Ps;
                         }
                     }
                     if (distance >= moving_gap && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) {

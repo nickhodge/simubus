@@ -36,7 +36,7 @@ var simubus = function (p: any) {
     var i = 0;
 
     if (!debug) {
-      laneconfigs.add(new Config.LaneSimConfig(200, 20, 20, 20, 40, config));
+      laneconfigs.add(new Config.LaneSimConfig(300, 30, 20, 20, 40, config));
       laneconfigs.add(new Config.LaneSimConfig(50, 30, 0, 0, 1300, config));
       laneconfigs.add(new Config.LaneSimConfig(0, 0, 0, 0, 1300, config));
 
@@ -45,10 +45,10 @@ var simubus = function (p: any) {
         lanes.add(new Infrastructure.Lane(i, 0, 300, config, c, reportStats));
      });
     
-     lanes.elementAtIndex(0).stops.add(new Stops.BusStop(100, 2, config, lanes.elementAtIndex(0) as Interfaces.IRoadThing));
-     lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0, 10, 10, 200, config, lanes.elementAtIndex(0) as Interfaces.IRoadThing));
-     lanes.elementAtIndex(1).stops.add(new Stops.TrafficStop(0, 10, 10, 200, config, lanes.elementAtIndex(1) as Interfaces.IRoadThing));
-     lanes.elementAtIndex(2).stops.add(new Stops.TrafficStop(0, 10, 10, 200, config, lanes.elementAtIndex(2) as Interfaces.IRoadThing));
+     lanes.elementAtIndex(0).stops.add(new Stops.BusStop(110, 30, config, lanes.elementAtIndex(0) as Interfaces.IRoadThing));
+     lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0, 60, 40, 50, config, lanes.elementAtIndex(0) as Interfaces.IRoadThing));
+     lanes.elementAtIndex(1).stops.add(new Stops.TrafficStop(0, 60, 40, 50, config, lanes.elementAtIndex(1) as Interfaces.IRoadThing));
+     lanes.elementAtIndex(2).stops.add(new Stops.TrafficStop(0, 60, 40, 50, config, lanes.elementAtIndex(2) as Interfaces.IRoadThing));
     
 
 } else {
@@ -64,9 +64,6 @@ var simubus = function (p: any) {
       lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
       lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.Car(0, 0, 0, 60, config, lanes.elementAtIndex(0)));
       lanes.elementAtIndex(0).queued_vehicles.add(new Vehicles.SmallBus(0, 0, 0, 50, config, lanes.elementAtIndex(0)));
-
-      lanes.elementAtIndex(0).stops.add(new Stops.BusStop(100, 0, 4, 10, config));
-      lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0, 5, 10, 190, 0, 4, 60, config));
     }
     p.createCanvas(config.pixelWidth_P, config.pixelHeight_P);
   };
@@ -78,12 +75,10 @@ var simubus = function (p: any) {
     var globalLaneStats = new Statistics.LaneStatistics();
     lanes.forEach(l => {
       var r = l.update(lanes);
-      globalLaneStats.bline_pause_time += r.bline_pause_time;
       globalLaneStats.queued_vehicles += r.queued_vehicles;
       globalLaneStats.queued_buses += r.queued_buses;
       l.draw(p);
     });
-    reportStats.bline_pause_time_S(globalLaneStats.bline_pause_time);
     reportStats.vehicles_in_queue(globalLaneStats.queued_vehicles);
     reportStats.buses_in_queue(globalLaneStats.queued_buses);
   };

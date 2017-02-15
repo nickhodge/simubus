@@ -18,6 +18,7 @@ define(["require", "exports", "./interfaces", "./stops"], function (require, exp
             this.stoppedTime_S = 0;
             this.deltaT_S = 0;
             this.deltaD_M = 0;
+            this.queued_time_S = 0;
             this.initialSpeed_Kmph = _initialSpeed_Kmph;
             this.currentSpeed_Kmph = this.initialSpeed_Kmph;
             this.pixelLength = this.length_M * this.config.simScale_PpM;
@@ -30,8 +31,8 @@ define(["require", "exports", "./interfaces", "./stops"], function (require, exp
             this.fillcolour_rgb = "#aaa";
             this.strokecolour_rgb = this.fillcolour_rgb;
         }
-        BaseVehicle.prototype.stopping_distance = function () {
-            return ((Math.pow(this.config.KmphToMps(this.currentSpeed_Kmph), 2)) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph);
+        BaseVehicle.prototype.stopping_distance_M = function () {
+            return ((Math.pow(this.config.KmphToMps(this.currentSpeed_Kmph), 2)) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph) + this.config.minimumDistance_M;
         };
         BaseVehicle.prototype.front_of = function () {
             return (this.xStart_M + this.length_M);

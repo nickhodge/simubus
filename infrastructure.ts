@@ -90,10 +90,6 @@ export class Lane implements Interfaces.ILane, Interfaces.IRoadThing {
         response.queued_buses += 1;
       }
 
-      // grab bline stats for reporting
-      if (qv instanceof Vehicles.BLineBus) {
-        response.bline_pause_time += qv.stoppedTime_s;
-      }
     });
 
     // each in lane
@@ -101,7 +97,7 @@ export class Lane implements Interfaces.ILane, Interfaces.IRoadThing {
 
       // if vehicle is past the end of this lane, delete it.  
       if (v.rear_of() >= this.end_of()) {
-        this.sim_statistics.update_vehicle_finished(v.deltaD_M, v.deltaT_S);
+        this.sim_statistics.update_vehicle_finished(v);
         this.vehicles.remove(v);
       }
 
@@ -204,7 +200,7 @@ export class Lane implements Interfaces.ILane, Interfaces.IRoadThing {
         var behind = this.vehicles.elementAtIndex(i);
 
         var distance = ahead.rear_of() - behind.front_of(); // distance from front of one vehicle to the other
-        var moving_gap = behind.stopping_distance(); // based on rear vehicle speed, what is stopping distance?
+        var moving_gap = behind.stopping_distance_M(); // based on rear vehicle speed, what is stopping distance?
         // TBD: relative speed slow down?
 
         // this block only if the vehicle to the rear is moving
@@ -213,11 +209,13 @@ export class Lane implements Interfaces.ILane, Interfaces.IRoadThing {
           // car ahead is too close, slow down
           if (distance < moving_gap || distance <= this.config.minimumDistance_M) {
             behind.currentState = Interfaces.VehicleMovementState.decelerating; // change to cruise
+            behind.queued_time_S += this.config.simFrameRate_Ps;
           }
 
           // car ahead stopped, and we are getting close. stop!
           if (ahead.currentSpeed_Kmph === 0 && distance <= this.config.minimumDistance_M) {
             behind.currentState = Interfaces.VehicleMovementState.stopped; // change to stop
+            behind.queued_time_S += this.config.simFrameRate_Ps;
           }
         }
 

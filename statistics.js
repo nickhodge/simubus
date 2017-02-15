@@ -1,8 +1,9 @@
-define(["require", "exports", "knockout"], function (require, exports, ko) {
+define(["require", "exports", "knockout", "./vehicles"], function (require, exports, ko, Vehicles) {
     "use strict";
     var LaneStatistics = (function () {
         function LaneStatistics(s) {
-            this.bline_pause_time = 0;
+            this.bline_queued_time_S = 0;
+            this.bline_buses_total = 0;
             this.queued_vehicles = 0;
             this.queued_buses = 0;
         }
@@ -13,7 +14,16 @@ define(["require", "exports", "knockout"], function (require, exports, ko) {
         function SimStatistics(s) {
             this.vehicles_in_queue = ko.observable(0);
             this.buses_in_queue = ko.observable(0);
-            this.bline_pause_time_S = ko.observable(0);
+            this.cumulative_bline_queued_time_S = ko.observable(0);
+            this.cumulative_bline_finished = ko.observable(0);
+            this.avg_bline_queued_time_S = ko.computed(function () {
+                if (this.cumulative_bline_queued_time_S() === 0) {
+                    return (0);
+                }
+                else {
+                    return (this.cumulative_bline_queued_time_S()) / (this.cumulative_bline_finished());
+                }
+            }, this);
             this.absoluteTime_S = ko.observable(0);
             this.vehicles_finished = ko.observable(0);
             this.vehicles_finished_distance_M = ko.observable(0);
@@ -35,10 +45,14 @@ define(["require", "exports", "knockout"], function (require, exports, ko) {
                 }
             }, this);
         }
-        SimStatistics.prototype.update_vehicle_finished = function (d, s) {
+        SimStatistics.prototype.update_vehicle_finished = function (v) {
             this.vehicles_finished(this.vehicles_finished() + 1);
-            this.vehicles_finished_distance_M(this.vehicles_finished_distance_M() + d);
-            this.vehicles_finished_time_S(this.vehicles_finished_time_S() + s);
+            this.vehicles_finished_distance_M(this.vehicles_finished_distance_M() + v.deltaD_M);
+            this.vehicles_finished_time_S(this.vehicles_finished_time_S() + v.deltaT_S);
+            if (v instanceof Vehicles.BLineBus) {
+                this.cumulative_bline_finished(this.cumulative_bline_finished() + 1);
+                this.cumulative_bline_queued_time_S(this.cumulative_bline_queued_time_S() + v.queued_time_S);
+            }
         };
         return SimStatistics;
     }());

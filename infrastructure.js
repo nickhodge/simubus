@@ -144,7 +144,7 @@ define(["require", "exports", "typescript-collections", "./vehicles", "./interfa
                             behind.queued_time_S += this.config.simFrameRate_Ps;
                         }
                     }
-                    if (distance >= moving_gap && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) {
+                    if (distance >= behind.stopping_distance_M() && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) {
                         behind.currentState = Interfaces.VehicleMovementState.accelerating;
                     }
                 }

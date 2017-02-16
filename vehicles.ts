@@ -68,7 +68,7 @@ export abstract class BaseVehicle implements Interfaces.IVehicle, Interfaces.IRo
 
   stopping_distance_M(): number {
     // ref: http://www.softschools.com/formulas/physics/stopping_distance_formula/89/
-    return ((this.config.KmphToMps(this.currentSpeed_Kmph) ** 2) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph) + this.config.minimumDistance_M;
+    return ((this.config.KmphToMps(this.currentSpeed_Kmph) ** 2) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph);
   }
 
   front_of(): number {
@@ -80,7 +80,7 @@ export abstract class BaseVehicle implements Interfaces.IVehicle, Interfaces.IRo
   }
 
   stop_ahead(s: Interfaces.IStop): boolean {
-    if (s.front_of() > this.front_of())
+    if (s.front_of() > this.rear_of())
       return true;
     else
       return false;

@@ -220,7 +220,7 @@ export class Lane implements Interfaces.ILane, Interfaces.IRoadThing {
         }
 
         // if distance is wide enough, accelerate (and let vehicle decide to 'cruise' if at max speed)
-        if (distance >= moving_gap && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) { // otherwise, OK to start accelerate
+        if (distance >= behind.stopping_distance_M() && behind.currentIntent === Interfaces.VehicleMovementIntent.normal) { // otherwise, OK to start accelerate
           behind.currentState = Interfaces.VehicleMovementState.accelerating;
         }
       }

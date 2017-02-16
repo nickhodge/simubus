@@ -32,7 +32,7 @@ define(["require", "exports", "./interfaces", "./stops"], function (require, exp
             this.strokecolour_rgb = this.fillcolour_rgb;
         }
         BaseVehicle.prototype.stopping_distance_M = function () {
-            return ((Math.pow(this.config.KmphToMps(this.currentSpeed_Kmph), 2)) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph) + this.config.minimumDistance_M;
+            return ((Math.pow(this.config.KmphToMps(this.currentSpeed_Kmph), 2)) / (2 * this.config.coefficientfriction * this.config.gravity)) + this.config.reactionTimeToM(this.currentSpeed_Kmph);
         };
         BaseVehicle.prototype.front_of = function () {
             return (this.xStart_M + this.length_M);
@@ -41,7 +41,7 @@ define(["require", "exports", "./interfaces", "./stops"], function (require, exp
             return (this.xStart_M);
         };
         BaseVehicle.prototype.stop_ahead = function (s) {
-            if (s.front_of() > this.front_of())
+            if (s.front_of() > this.rear_of())
                 return true;
             else
                 return false;
@@ -60,7 +60,7 @@ define(["require", "exports", "./interfaces", "./stops"], function (require, exp
             return ((r.xStart_M + r.length_M) - this.front_of());
         };
         BaseVehicle.prototype.near_stop = function (s) {
-            if (this.distance_between(s) <= this.stopping_distance())
+            if (this.distance_between(s) <= this.stopping_distance_M())
                 return true;
             else
                 return false;

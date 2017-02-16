@@ -18,7 +18,6 @@ define(["require", "exports", "typescript-collections", "./config", "./infrastru
                     i++;
                     lanes.add(new Infrastructure.Lane(i, 0, 300, config, c, reportStats));
                 });
-                lanes.elementAtIndex(0).stops.add(new Stops.BusStop(110, 30, config, lanes.elementAtIndex(0)));
                 lanes.elementAtIndex(0).stops.add(new Stops.TrafficStop(0, 60, 40, 50, config, lanes.elementAtIndex(0)));
                 lanes.elementAtIndex(1).stops.add(new Stops.TrafficStop(0, 60, 40, 50, config, lanes.elementAtIndex(1)));
                 lanes.elementAtIndex(2).stops.add(new Stops.TrafficStop(0, 60, 40, 50, config, lanes.elementAtIndex(2)));
